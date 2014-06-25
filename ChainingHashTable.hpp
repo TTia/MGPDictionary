@@ -12,17 +12,18 @@ class ChainingHashTable/*: public Dictionary<Key, Value>*/{
 private:
   int m, n;
   double loadFactorThreshold;
-  std::vector<std::pair<Key, Value>>** table;
   std::hash<Key> h;
+  std::vector<std::pair<Key, Value>>** table;
 
 public:
   ChainingHashTable() = delete;
-  ChainingHashTable(int m, std::hash<Key>, double loadFactorThreshold = 0.5);
+  ChainingHashTable(std::hash<Key>, double loadFactorThreshold = 0.5, int m = 17);
 
-  Value insert(const Key, Value&);
-  Value del(const Key key);
+  bool insert(const Key, Value&, Value** = nullptr);
+  bool del(const Key, Value** = nullptr);
   Value* search(const Key);
-  //Value& operator[](const Key);
+  Value* operator[](const Key);
+
   inline int countValues(){
     return n;
   }
@@ -31,23 +32,21 @@ public:
   }
 
   ~ChainingHashTable(){
-    /*if(!table){
+    if(!table){
         return;
-      }*/
-    /*
+      }
     for(int i = 0; i<m; i++){
         if(!table[i]){
             delete table[i];
           }
       }
-      */
     delete [] table;
   }
 };
 
 template<typename Key, typename Value>
-ChainingHashTable<Key, Value>::ChainingHashTable(int m, std::hash<Key> h, double loadFactorThreshold):
-  m{m}, loadFactorThreshold{loadFactorThreshold}, h{h}{
+ChainingHashTable<Key, Value>::ChainingHashTable(std::hash<Key> h, double loadFactorThreshold, int m):
+  m{m}, n{0}, loadFactorThreshold{loadFactorThreshold}, h{h}, table{nullptr}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
@@ -55,47 +54,48 @@ ChainingHashTable<Key, Value>::ChainingHashTable(int m, std::hash<Key> h, double
   for(int i = 0; i<m; i++){
       table[i] = nullptr;
     }
-  //table = {0};
 }
 
 template<typename Key, typename Value>
-Value ChainingHashTable<Key, Value>::insert(const Key key, Value &value){
+bool ChainingHashTable<Key, Value>::insert(const Key key, Value &value, Value** output){
   int i = h(key)%m;
   std::pair<Key,Value>* pair = new std::pair<Key, Value>(key, value);
-  if(table[i] == nullptr){
+  if(!table[i]){
       table[i] = new std::vector<std::pair<Key, Value>>();
       table[i]->push_back(*pair);
       n++;
-      return NULL;
+      return false;
     }
   for(size_t j = 0; j != table[i]->size(); j++) {
       if(table[i]->at(j).first == key){
-          Value oldValue = table[i]->at(j).second;
+          if(output)
+            *output = new Value(std::move(table[i]->at(j).second));
           table[i]->at(j) = *pair;
-          return oldValue;
+          return true;
         }
     }
   table[i]->push_back(*pair);
   n++;
-  return NULL;
+  return false;
 }
 
 template<typename Key, typename Value>
-Value ChainingHashTable<Key, Value>::del(const Key key){
+bool ChainingHashTable<Key, Value>::del(const Key key, Value** output){
   auto hashValue = h(key);
   int i = hashValue%m;
-  if(table[i] == nullptr){
-      return NULL;
+  if(!table[i] || table[i]->size() == 0){
+      return false;
     }
   for(size_t j = 0; j != table[i]->size(); j++) {
       if(table[i]->at(j).first == key){
-          Value oldValue = table[i]->at(j).second;
+          if(output != nullptr)
+            *output = new Value(std::move(table[i]->at(j).second));
           table[i]->erase(table[i]->begin()+j);
           n--;
-          return oldValue;
+          break;
         }
     }
-  return NULL;
+  return true;
 }
 
 template<typename Key, typename Value>

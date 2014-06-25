@@ -16,5 +16,9 @@ HEADERS += \
     Dictionary.hpp \
     ChainingHashTable.hpp \
     OpenAddressingHashTable.hpp \
-    gtest/gtest.h
+    gtest/gtest.h \
+    Hashing.hpp
+
+OTHER_FILES += \
+    README.md
 
