@@ -10,7 +10,8 @@ LIBS += -pthread
 SOURCES += main.cpp \
     gtest/gtest-all.cc \
     unit-test/GTest_ChainingHashTable.cpp \
-    unit-test/GTest_OpenAddressingHashTable.cpp
+    unit-test/GTest_OpenAddressingHashTable.cpp \
+    unit-test/GTest_Hashing.cpp
 
 HEADERS += \
     Dictionary.hpp \

@@ -9,7 +9,7 @@
  * Data l'impronta hash della chiave e la dimensione della tabella, viene calcolata
  * la normalizzazione.
  */
-class Hashing{
+class HashingMethod{
 public:
   virtual unsigned long hash(const unsigned long m, const unsigned long k) const = 0;
   unsigned long operator()(const unsigned long m, const unsigned long k) const{
@@ -17,41 +17,46 @@ public:
   }
 };
 
-class DivisionMethod: public Hashing{
+class DivisionMethod: public HashingMethod{
 public:
   inline unsigned long hash(unsigned long m, unsigned long k) const{
     return k % m;
   }
 };
 
-class KnuthDivisionMethod: public Hashing{
+class KnuthDivisionMethod: public HashingMethod{
 public:
   inline unsigned long hash(unsigned long m, unsigned long k) const{
     return (k*(k+3))%m;
   }
 };
 
-class MultiplicationMethod: public Hashing{
+/*
+class MultiplicationMethod: public HashingMethod{
 private:
-  unsigned long long s;
+  double a;
+  unsigned long long A;
 public:
-  MultiplicationMethod(): s{(unsigned long long)floor(0.5*(sqrt(5)-1) * pow(2,32))}{}
-
+  MultiplicationMethod() : a{double(rand())/RAND_MAX}{
+  }
   inline unsigned long hash(unsigned long m, unsigned long k) const{
-    unsigned long long p = log2(m);
-    return k*s >> (32-p);
+    //w = k in bits, r = m in bits
+    int w = !k ? 1 : log2(k), r = !m ? 1 : log2(m);
+    //A in [2^(w-1), 2^w]
+    unsigned long long A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
+    return ((A*k)% int(pow(2, w))) >> (w-r);
   }
 };
+*/
 
-class UniversalHashing: public Hashing{
+class UniversalMethod: public HashingMethod{
 private:
-  double a, b;
+  unsigned long p, a, b;
 public:
-  UniversalHashing(): a{double(rand())/RAND_MAX}, b{double(rand())/RAND_MAX}{
-
+  UniversalMethod(): p{17}, a{rand()/RAND_MAX*p}, b{rand()/RAND_MAX*p}{
   }
-  inline unsigned long hash(unsigned long m, unsigned long b) const{
-    return 0;
+  inline unsigned long hash(unsigned long m, unsigned long k) const{
+    return ((a*k+b)%p)%m;
   }
 };
 
