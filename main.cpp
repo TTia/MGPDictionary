@@ -3,6 +3,7 @@
 #include "ChainingHashTable.hpp"
 #include "OpenAddressingHashTable.hpp"
 #include "gtest/gtest.h"
+#include "ChainingHashTableIterator.hpp"
 
 using namespace std;
 

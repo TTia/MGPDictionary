@@ -3,7 +3,8 @@
 
 #include <stdexcept>
 
-class GTest_Hashing : public ::testing::Test {
+class DISABLED_GTest_Hashing : public ::testing::Test {
+//class GTest_Hashing : public ::testing::Test {
 protected:
   virtual void SetUp() {
   }
@@ -13,23 +14,30 @@ protected:
 
 };
 
-TEST_F(GTest_Hashing, Deterministic_Hashing_DivisionMethod) {
+TEST_F(DISABLED_GTest_Hashing, Deterministic_Hashing_DivisionMethod) {
+//TEST_F(GTest_Hashing, Deterministic_Hashing_DivisionMethod) {
   DivisionMethod method;
-  for(int m = 1; m < 10; m++)
+  for(unsigned long long m = 1; m < 100; m++)
     for(int k = 0; k < 8388608; k++){
-      ASSERT_EQ(method(m,k), method(m,k));
-  }
+        unsigned long long i = method(m,k);
+        ASSERT_EQ(method(m,k), method(m,k));
+        ASSERT_TRUE(i >= 0 && i < m);
+    }
 }
 
-TEST_F(GTest_Hashing, Deterministic_Hashing_KnuthDivisionMethod) {
+TEST_F(DISABLED_GTest_Hashing, Deterministic_Hashing_KnuthDivisionMethod) {
+//TEST_F(GTest_Hashing, Deterministic_Hashing_KnuthDivisionMethod) {
   KnuthDivisionMethod method;
-  for(int m = 1; m < 10; m++)
+  for(unsigned long long m = 1; m < 100; m++)
     for(int k = 0; k < 8388608; k++){
-      ASSERT_EQ(method(m,k), method(m,k));
+      unsigned long long i = method(m,k);
+      ASSERT_EQ(i, method(m,k));
+      ASSERT_TRUE(i >= 0 && i < m);
   }
 }
 /*
-TEST_F(GTest_Hashing, Deterministic_Hashing_MultiplicationMethod) {
+TEST_F(DISABLED_GTest_Hashing, Deterministic_Hashing_KnuthDivisionMethod) {
+//TEST_F(GTest_Hashing, Deterministic_Hashing_MultiplicationMethod) {
   MultiplicationMethod method;
   for(int m = 1; m < 10; m++)
     for(int k = 0; k < 8388608; k++){
@@ -37,10 +45,14 @@ TEST_F(GTest_Hashing, Deterministic_Hashing_MultiplicationMethod) {
   }
 }
 */
-TEST_F(GTest_Hashing, Deterministic_Hashing_UniversalMethod) {
+
+TEST_F(DISABLED_GTest_Hashing, Deterministic_Hashing_UniversalMethod) {
+//TEST_F(GTest_Hashing, Deterministic_Hashing_UniversalMethod) {
   UniversalMethod method;
-  for(int m = 1; m < 10; m++)
+  for(unsigned long long m = 1; m < 100; m++)
     for(int k = 0; k < 8388608; k++){
-      ASSERT_EQ(method(m,k), method(m,k));
-  }
+        unsigned long long i = method(m,k);
+        ASSERT_EQ(method(m,k), method(m,k));
+        ASSERT_TRUE(i >= 0 && i < m);
+    }
 }

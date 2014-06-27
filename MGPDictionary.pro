@@ -6,6 +6,9 @@ CONFIG += c++11
 
 QMAKE_CXXFLAGS += -std=c++11 -pthread
 LIBS += -pthread
+#LIBS += -L[/usr/local/boost_1_55_0] -l[boost]
+INCLUDEPATH += "/usr/local/boost_1_55_0"
+#INCLUDEPATH += "/usr/local/boost_1_55_0/boost"
 
 SOURCES += main.cpp \
     gtest/gtest-all.cc \
@@ -18,7 +21,8 @@ HEADERS += \
     ChainingHashTable.hpp \
     OpenAddressingHashTable.hpp \
     gtest/gtest.h \
-    Hashing.hpp
+    Hashing.hpp \
+    ChainingHashTableIterator.hpp
 
 OTHER_FILES += \
     README.md

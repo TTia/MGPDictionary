@@ -7,13 +7,14 @@
 #include <exception>
 #include <stdexcept>
 
-template<typename Key, typename Value>
+template<typename Key, typename Value, typename HashingMethod = KnuthDivisionMethod>
 class ChainingHashTable/*: public Dictionary<Key, Value>*/{
 private:
   int m, n;
   double loadFactorThreshold;
   std::hash<Key> h;
   std::vector<std::pair<Key, Value>>** table;
+  HashingMethod hm;
 
 public:
   ChainingHashTable() = delete;
@@ -44,8 +45,10 @@ public:
   }
 };
 
-template<typename Key, typename Value>
-ChainingHashTable<Key, Value>::ChainingHashTable(std::hash<Key> h, double loadFactorThreshold, int m):
+
+
+template<typename Key, typename Value, typename HashingMethod>
+ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(std::hash<Key> h, double loadFactorThreshold, int m):
   m{m}, n{0}, loadFactorThreshold{loadFactorThreshold}, h{h}, table{nullptr}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
@@ -56,9 +59,11 @@ ChainingHashTable<Key, Value>::ChainingHashTable(std::hash<Key> h, double loadFa
     }
 }
 
-template<typename Key, typename Value>
-bool ChainingHashTable<Key, Value>::insert(const Key key, Value &value, Value** output){
-  int i = h(key)%m;
+template<typename Key, typename Value, typename HashingMethod>
+bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &value, Value** output){
+//  int i = h(key)%m;
+  auto hashValue = h(key);
+  int i = hm(m, hashValue);
   std::pair<Key,Value>* pair = new std::pair<Key, Value>(key, value);
   if(!table[i]){
       table[i] = new std::vector<std::pair<Key, Value>>();
@@ -79,10 +84,11 @@ bool ChainingHashTable<Key, Value>::insert(const Key key, Value &value, Value** 
   return false;
 }
 
-template<typename Key, typename Value>
-bool ChainingHashTable<Key, Value>::del(const Key key, Value** output){
+template<typename Key, typename Value, typename HashingMethod>
+bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** output){
+//  int i = hashValue%m;
   auto hashValue = h(key);
-  int i = hashValue%m;
+  int i = hm(m, hashValue);
   if(!table[i] || table[i]->size() == 0){
       return false;
     }
@@ -98,10 +104,10 @@ bool ChainingHashTable<Key, Value>::del(const Key key, Value** output){
   return true;
 }
 
-template<typename Key, typename Value>
-Value* ChainingHashTable<Key, Value>::search(const Key key){
+template<typename Key, typename Value, typename HashingMethod>
+Value* ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
   auto hashValue = h(key);
-  int i = hashValue%m;
+  int i = hm(m, hashValue);
   if(table[i] == nullptr){
       return nullptr;
     }
