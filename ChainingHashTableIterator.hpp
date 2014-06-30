@@ -4,39 +4,38 @@
 #include <iterator>
 #include <boost/iterator/iterator_facade.hpp>
 
-#include "ChainingHashTable.hpp"
+template<typename Key, typename Value, typename HashingMethod>
+class ChainingHashTable;
 
-template <typename Key, typename Value>
-class SpikeForwardIterator:
-  public boost::iterator_facade<SpikeForwardIterator<Key, Value>, std::pair<Key, Value>, std::bidirectional_iterator_tag> {
-  friend class ChainingHashTable<Key, Value>;
-private:
-  node_base* m_node;
+template <typename Key, typename Value, typename HashingMethod = KnuthDivisionMethod>
+class ChainingHashTableBidirectionalIterator:
+    public boost::iterator_facade<ChainingHashTableBidirectionalIterator<Key, Value, HashingMethod>,
+                                  std::pair<Key, Value>,
+                                  std::bidirectional_iterator_tag> {
 public:
-  node_iterator()
-  : m_node(0)
-  {}
-  explicit node_iterator(node_base* p)
-  : m_node(p)
-  {}
+  ChainingHashTableBidirectionalIterator() = delete;
+  ChainingHashTableBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* table, int i, int j){}
+
+  friend class boost::iterator_core_access;
+  friend class ChainingHashTable<Key, Value, HashingMethod>;
+private:
+  ChainingHashTable<Key, Value, HashingMethod> *table;
+
+  long int i, j;
+
+  void increment() {
+  }
+
+  bool equal(ChainingHashTableBidirectionalIterator const& other) const
+  {
+    std::cout << "equal" << std::endl;
+    return this->data[i]->at(j) == other.data[i]->at(j);
+  }
+
+  ChainingHashTable::Pair& dereference() const {
+    std::cout << "* deref" << std::endl;
+    return this->data[i]->at(j);
+  }
 };
 
-#endif // CHAININGHASHTABLEITERATOR_HPP
-
-/*
-template <typename Key, typename Value>
-class ChainingHashTableBidirectionalIterator_keys:
-    public std::iterator<std::bidirectional_iterator_tag, Key>{
-  friend class ChainingHashTable;
-private:
-public:
-};
-
-template <typename Key, typename Value>
-class ChainingHashTableBidirectionalIterator_values:
-    public std::iterator<std::bidirectional_iterator_tag, Value>{
-  friend class ChainingHashTable;
-private:
-public:
-};
-*/
+#endif
