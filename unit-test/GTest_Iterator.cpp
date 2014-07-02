@@ -39,6 +39,22 @@ TEST_F(GTest_Iterator, Iterate_over_table_Forward_order) {
   ASSERT_EQ(6, result);
 }
 
+TEST_F(GTest_Iterator, Iterate_over_table_Forward_order_Multiple_elements_in_a_chain) {
+  std::hash<int> h;
+  int m = 17;
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
+  char a = 'a';
+  table->insert(1,a); table->insert(2,a); table->insert(3,a);
+  table->insert(m+1,a);
+
+  int result = 0;
+  for(auto it = table->begin(); it != table->end(); it++){
+    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+    result += current.first;
+    }
+  ASSERT_EQ(6+(m+1), result);
+}
+
 TEST_F(GTest_Iterator, Iterate_over_table_Iterator_i_and_j) {
   return;
 }

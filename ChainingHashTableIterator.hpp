@@ -18,62 +18,69 @@ public:
   friend class ChainingHashTable<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator() = delete;
-  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, int j = 0):
-    table{htable->table}, m{htable->m}, i{i}, j{j}
+  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
+    table{htable->table}, m{htable->m}, i{i}, j(j)
   {
     this->_searchNextChain();
   }
   CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
-    table{htable->table}, m{htable->m}, i{0}, j{0}
+    table{htable->table}, m{htable->m}, i{0}, j(0)
   {
     this->_searchNextChain();
   }
 private:
-  typedef typename ChainingHashTable<Key, Value, HashingMethod>::__vector::iterator slave_iterator;
+//  typedef typename ChainingHashTable<Key, Value, HashingMethod>::__vector::iterator slave_iterator;
   typename ChainingHashTable<Key, Value, HashingMethod>::Table* table;
-  long int m, i, j;
-  slave_iterator it;
+  long int m, i;
+  size_t j;
+//  slave_iterator it;
 
   void increment() {
-    it++;
+//    it++;
     j++;
-    if(table[i]->end() != it){
+//    if(table[i]->end() != it){
+    if(j >= 0 && j < table[i]->size()){
       return;
     }
     i++;
     this->_searchNextChain();
   }
   void _searchNextChain(){
-    while(i < m && i >= 0 && !table[i]){
+    j = 0;
+    while(i >= 0 && i < m && !table[i]){
         i++;
       }
     if(i >= m || i < 0){
         i = m;
         return;
       }
-    it = table[i]->begin();
-    j = 0;
+//    it = table[i]->begin();
   }
 
   void decrement() {
-    it--;
+//    it--;
     j--;
-    if(table[i]->end() != it){
+//    if(table[i]->end() != it){
+    if(j < 0 || j >= table[i]->size()){
+      i = m;
+      j = 0;
       return;
     }
     i--;
     this->_searchPreviousChain();
   }
+
   void _searchPreviousChain(){
     while(i < m && i >= 0 && !table[i]){
         i--;
       }
     if(i >= m || i <= -1){
         i = m;
+        j = 0;
         return;
       }
-    it = table[i]->end();
-    it--;
+//    it = table[i]->end();
+//    it--;
     j = table[i]->size() - 1;
   }
 
@@ -83,7 +90,8 @@ private:
   }
 
   typename ChainingHashTable<Key, Value, HashingMethod>::Pair& dereference() const {
-    return *it;
+//    return *it;
+    return table[i]->at(j);
   }
 };
 
