@@ -9,13 +9,15 @@
 #include <exception>
 #include <stdexcept>
 
-template<typename Key, typename Value, typename HashingMethod = KnuthDivisionMethod>
+template<typename Key, typename Value, typename HashingMethod = DivisionMethod>
 class ChainingHashTable{
+  friend class CHTBidirectionalIterator<Key, Value, HashingMethod>;
+
 public:
   typedef std::vector<std::pair<Key, Value>>* Table;
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
-  typedef ChainingHashTableBidirectionalIterator<Key, Value, HashingMethod> iterator;
+  typedef CHTBidirectionalIterator<Key, Value, HashingMethod> iterator;
 
   ChainingHashTable() = delete;
   ChainingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
@@ -24,6 +26,17 @@ public:
   bool del(const Key, Value** = nullptr);
   Value* search(const Key);
   Value* operator[](const Key);
+
+  inline iterator begin(){
+    if(!n){
+        return this->end();
+      }
+    auto it = *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
+    return it;
+  }
+  inline iterator end(){
+    return *new iterator(this, m/*, 0*/);
+  }
 
   inline int countValues(){
     return n;
@@ -45,6 +58,7 @@ public:
   }
 
 private:
+  typedef std::vector<std::pair<Key, Value>> __vector;
 
   long int m, n;
   double loadFactorThreshold;
@@ -72,6 +86,7 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &
   int i = hm(m, h(key));
   Pair* pair = new Pair(key, value);
   if(!table[i]){
+      std::cout << i << std::endl;
       table[i] = new std::vector<Pair>();
       table[i]->push_back(*pair);
       n++;

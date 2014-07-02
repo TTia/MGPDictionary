@@ -11,19 +11,19 @@ INCLUDEPATH += "/usr/local/boost_1_55_0"
 #INCLUDEPATH += "/usr/local/boost_1_55_0/boost"
 
 SOURCES += main.cpp \
-    gtest/gtest-all.cc \
     unit-test/GTest_OpenAddressingHashTable.cpp \
     unit-test/GTest_Hashing.cpp \
     unit-test/GTest_ChainingHashTable.cpp \
-    unit-test/GTest_Iterator.cpp
+    unit-test/GTest_Iterator.cpp \
+    gtest/gtest-all.cc
 
 HEADERS += \
     Dictionary.hpp \
     ChainingHashTable.hpp \
     OpenAddressingHashTable.hpp \
-    gtest/gtest.h \
     Hashing.hpp \
-    ChainingHashTableIterator.hpp
+    ChainingHashTableIterator.hpp \
+    gtest/gtest.h
 
 OTHER_FILES += \
     README.md

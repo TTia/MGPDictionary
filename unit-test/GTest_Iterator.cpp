@@ -16,8 +16,40 @@ protected:
 
 TEST_F(GTest_Iterator, Iterator_over_empty_table) {
   std::hash<int> h;
-  auto table = new ChainingHashTable<int, char>(h);
-  char a = 'a';
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
 
+  for(auto it = table->begin(); it != table->end(); it++){
+        ASSERT_TRUE(false);
+    }
   ASSERT_TRUE(true);
+}
+
+TEST_F(GTest_Iterator, Iterate_over_table_Forward_order) {
+  std::hash<int> h;
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  char a = 'a';
+  table->insert(1,a); table->insert(2,a); table->insert(3,a);
+
+  int result = 0;
+  for(auto it = table->begin(); it != table->end(); it++){
+    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+    result += current.first;
+    }
+  ASSERT_EQ(6, result);
+}
+
+TEST_F(GTest_Iterator, Iterate_over_table_Decrementing) {
+  std::hash<int> h;
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  char a = 'a';
+  table->insert(1,a); table->insert(2,a); table->insert(3,a);
+  auto it = table->begin();
+  it++; it++; it++;
+
+  int result = 0;
+  for(; it != table->end(); it--){
+    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+    result += current.first;
+    }
+  ASSERT_EQ(6, result);
 }

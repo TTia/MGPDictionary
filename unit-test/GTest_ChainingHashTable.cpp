@@ -12,7 +12,7 @@ protected:
   }
 };
 
-TEST_F(GTest_ChainingHashTable, Constructor) {
+TEST_F(GTest_ChainingHashTable, coutnstructor) {
   std::hash<int> h;
   auto cht = new ChainingHashTable<int, char>(h, .5);
   EXPECT_EQ(cht->countValues(), 0);
@@ -20,7 +20,7 @@ TEST_F(GTest_ChainingHashTable, Constructor) {
   delete cht;
 }
 
-TEST_F(GTest_ChainingHashTable, Constructor_illegal_parameters) {
+TEST_F(GTest_ChainingHashTable, coutnstructor_illegal_parameters) {
   std::hash<int> h;
   try{
     new ChainingHashTable<int, char>(h, 1.2, -1);
