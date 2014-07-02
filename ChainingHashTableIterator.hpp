@@ -29,16 +29,12 @@ public:
     this->_searchNextChain();
   }
 private:
-//  typedef typename ChainingHashTable<Key, Value, HashingMethod>::__vector::iterator slave_iterator;
   typename ChainingHashTable<Key, Value, HashingMethod>::Table* table;
   long int m, i;
   size_t j;
-//  slave_iterator it;
 
   void increment() {
-//    it++;
     j++;
-//    if(table[i]->end() != it){
     if(j >= 0 && j < table[i]->size()){
       return;
     }
@@ -50,20 +46,15 @@ private:
     while(i >= 0 && i < m && !table[i]){
         i++;
       }
-    if(i >= m || i < 0){
+    if(i < 0 || i >= m){
         i = m;
         return;
       }
-//    it = table[i]->begin();
   }
 
   void decrement() {
-//    it--;
     j--;
-//    if(table[i]->end() != it){
-    if(j < 0 || j >= table[i]->size()){
-      i = m;
-      j = 0;
+    if(j > 0 && j < table[i]->size()){
       return;
     }
     i--;
@@ -74,13 +65,11 @@ private:
     while(i < m && i >= 0 && !table[i]){
         i--;
       }
-    if(i >= m || i <= -1){
+    if(i < 0 || i >= m){
         i = m;
         j = 0;
         return;
       }
-//    it = table[i]->end();
-//    it--;
     j = table[i]->size() - 1;
   }
 
@@ -90,7 +79,6 @@ private:
   }
 
   typename ChainingHashTable<Key, Value, HashingMethod>::Pair& dereference() const {
-//    return *it;
     return table[i]->at(j);
   }
 };

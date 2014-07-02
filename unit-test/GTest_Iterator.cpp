@@ -39,7 +39,7 @@ TEST_F(GTest_Iterator, Iterate_over_table_Forward_order) {
   ASSERT_EQ(6, result);
 }
 
-TEST_F(GTest_Iterator, Iterate_over_table_Forward_order_Multiple_elements_in_a_chain) {
+TEST_F(GTest_Iterator, Iterate_over_table_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
@@ -55,12 +55,14 @@ TEST_F(GTest_Iterator, Iterate_over_table_Forward_order_Multiple_elements_in_a_c
   ASSERT_EQ(6+(m+1), result);
 }
 
-TEST_F(GTest_Iterator, Iterate_over_table_Iterator_i_and_j) {
-  return;
+TEST_F(GTest_Iterator, Iterate_over_table_Iterator_explicit_position) {
+  std::hash<int> h;
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  char a = 'a';
+  table->insert(1,a); table->insert(2,a); table->insert(3,a);
 }
 
 TEST_F(GTest_Iterator, Iterate_over_table_Operator_elision) {
-  return;
   std::hash<int> h;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
   char a = 'a';
@@ -69,6 +71,6 @@ TEST_F(GTest_Iterator, Iterate_over_table_Operator_elision) {
 
   it++; it--;
   ASSERT_EQ(it, table->begin());
-  it++; it++; it--; it++; it--; it--; it--;
+  it++; it++; it--; it++; it--; it--;
   ASSERT_EQ(it, table->begin());
 }

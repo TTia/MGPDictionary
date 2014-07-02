@@ -86,7 +86,6 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &
   int i = hm(m, h(key));
   Pair* pair = new Pair(key, value);
   if(!table[i]){
-      std::cout << i << std::endl;
       table[i] = new std::vector<Pair>();
       table[i]->push_back(*pair);
       n++;
