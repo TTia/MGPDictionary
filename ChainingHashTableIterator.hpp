@@ -123,29 +123,47 @@ public:
   friend class ChainingHashTable<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{
+  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}
 
-  }
   CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, HashingMethod>* htable):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable)}{
-
-  }
+  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable)}{}
 };
 
 template <typename Key, typename Value, typename HashingMethod = DivisionMethod>
 class CHTBidirectionalIterator_Value:
-    private CHTBidirectionalIterator<Key, Value, HashingMethod>,
     public boost::iterator_facade<CHTBidirectionalIterator_Value<Key, Value, HashingMethod>,
                                   Value&,
                                   std::bidirectional_iterator_tag> {
+private:
+  CHTBidirectionalIterator<Key, Value, HashingMethod>* it;
+
+  void increment() {
+    this->it->increment();
+  }
+
+  void decrement() {
+    this->it->decrement();
+  }
+
+  bool equal(CHTBidirectionalIterator_Value const& other) const
+  {
+    return this->it->equal(*other.it);
+  }
+
+  Value& dereference() const {
+    return this->it->dereference().second;
+  }
+
 public:
   typedef CHTBidirectionalIterator<Key, Value, HashingMethod> super;
   friend class boost::iterator_core_access;
   friend class ChainingHashTable<Key, Value, HashingMethod>;
 
-  Value& dereference() const {
-    return super::table[super::i]->at(super::j)->first();
-  }
+  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
+  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}
+
+  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, HashingMethod>* htable):
+  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable)}{}
 };
 
 #endif

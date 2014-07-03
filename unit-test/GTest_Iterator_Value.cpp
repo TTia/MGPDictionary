@@ -2,6 +2,8 @@
 #include "ChainingHashTable.hpp"
 #include "ChainingHashTableIterator.hpp"
 
+#include <stdio.h>
+#include <string.h>
 #include <stdexcept>
 
 class GTest_Iterator_Values : public ::testing::Test {
@@ -15,82 +17,77 @@ protected:
 };
 
 TEST_F(GTest_Iterator_Values, Iterator_over_empty_table) {
-  return;
   std::hash<int> h;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
 
-  for(auto it = table->begin(); it != table->end(); it++){
+  for(auto it = table->begin_value(); it != table->end_value(); it++){
         ASSERT_TRUE(false);
     }
   ASSERT_TRUE(true);
 }
 
 TEST_F(GTest_Iterator_Values, Iterate_over_table_Forward_order) {
-  return;
   std::hash<int> h;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
-  char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
+  char a = 'a', b = 'b', c = 'c', result[4] = "";
+  int i = 0;
+  table->insert(1,a); table->insert(2,b); table->insert(3,c);
 
-  int result = 0;
-  for(auto it = table->begin(); it != table->end(); it++){
-    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
-    result += current.first;
+  for(auto it = table->begin_value(); it != table->end_value(); it++, i++){
+    result[i] = *it;
     }
-  ASSERT_EQ(6, result);
+  result[i] = '\0';
+  ASSERT_EQ(strcmp("abc", result), 0);
 }
 
 TEST_F(GTest_Iterator_Values, Iterate_over_table_Forward_order_Chain) {
-  return;
   std::hash<int> h;
   int m = 17;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
-  char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
-  table->insert(m+1,a);
+  char a = 'a', b = 'b', c = 'c', d = 'd', result[5] = "";
+  int i = 0;
+  table->insert(1,a); table->insert(2,b); table->insert(3,c);
+  table->insert(m+1,d);
 
-  int result = 0;
-  for(auto it = table->begin(); it != table->end(); it++){
-    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
-    result += current.first;
-    }
-  ASSERT_EQ(6+(m+1), result);
+  for(auto it = table->begin_value(); it != table->end_value(); it++, i++){
+    result[i] = *it;
+  }
+  result[i] = '\0';
+  ASSERT_EQ(strcmp("adbc", result), 0);
 }
 
 TEST_F(GTest_Iterator_Values, Iterate_over_table_Iterator_explicit_position) {
-  return;
   std::hash<int> h;
   int m = 17;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
-  char a = 'a';
-  table->insert(1,a); table->insert(m+1,a); table->insert(16,a);
-  auto it_1 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 1, 0);
-  auto it_2 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 1, 1);
-  auto it_3 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 16, 0);
+  char a = 'a', b = 'b', c = 'c';
+  table->insert(1,a); table->insert(m+1,b); table->insert(16,c);
+  auto it_1 = new CHTBidirectionalIterator_Value<int, char, DivisionMethod>(table, 1, 0);
+  auto it_2 = new CHTBidirectionalIterator_Value<int, char, DivisionMethod>(table, 1, 1);
+  auto it_3 = new CHTBidirectionalIterator_Value<int, char, DivisionMethod>(table, 16, 0);
+  auto it_err = new CHTBidirectionalIterator_Value<int, char, DivisionMethod>(table, 2, 0);
 
-  ChainingHashTable<int, char, DivisionMethod>::Pair& pair = **it_1;
-  auto value = new std::pair<int, char>(1, a);
-  ASSERT_EQ(*value, pair);
+  char value = a;
+  ASSERT_EQ(value, **it_1);
 
-  value->first = m+1;
-  pair = **it_2;
-  ASSERT_EQ(*value, pair);
+  value = b;
+  ASSERT_EQ(value, **it_2);
 
-  value->first = 16;
-  pair = **it_3;
-  ASSERT_EQ(*value, pair);
+  value = c;
+  ASSERT_EQ(value, **it_3);
+
+  ASSERT_EQ(*it_err, table->end_value());
 }
 
 TEST_F(GTest_Iterator_Values, Iterate_over_table_Operator_elision) {
-  return;
   std::hash<int> h;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
   char a = 'a';
   table->insert(1,a); table->insert(2,a); table->insert(3,a);
-  auto it = table->begin();
+  auto it = table->begin_value();
 
   it++; it--;
-  ASSERT_EQ(it, table->begin());
+  ASSERT_EQ(it, table->begin_value());
   it++; it++; it--; it++; it--; it--;
-  ASSERT_EQ(it, table->begin());
+  ASSERT_EQ(it, table->begin_value());
 }
