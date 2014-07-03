@@ -11,11 +11,12 @@ INCLUDEPATH += "/usr/local/boost_1_55_0"
 #INCLUDEPATH += "/usr/local/boost_1_55_0/boost"
 
 SOURCES += main.cpp \
-    unit-test/GTest_OpenAddressingHashTable.cpp \
     unit-test/GTest_Hashing.cpp \
     unit-test/GTest_ChainingHashTable.cpp \
-    unit-test/GTest_Iterator.cpp \
-    gtest/gtest-all.cc
+    gtest/gtest-all.cc \
+    unit-test/GTest_Iterator_Pair.cpp \
+    unit-test/GTest_Iterator_Key.cpp \
+    unit-test/GTest_Iterator_Value.cpp
 
 HEADERS += \
     Dictionary.hpp \

@@ -18,13 +18,17 @@ public:
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
   typedef CHTBidirectionalIterator<Key, Value, HashingMethod> iterator;
+  typedef CHTBidirectionalIterator_Key<Key, Value, HashingMethod> iterator_key;
+  typedef CHTBidirectionalIterator_Value<Key, Value, HashingMethod> iterator_value;
 
   ChainingHashTable() = delete;
   ChainingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
   bool insert(const Key, Value&, Value** = nullptr);
   bool del(const Key, Value** = nullptr);
+//  iterator search(const Key);
   Value* search(const Key);
+//  iterator operator[](const Key);
   Value* operator[](const Key);
 
   inline iterator begin(){
@@ -34,8 +38,33 @@ public:
     auto it = *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
     return it;
   }
+
+  inline iterator_key begin_key(){
+    if(!n){
+        return this->end_key();
+      }
+    auto it = *new CHTBidirectionalIterator_Key<Key, Value, HashingMethod>(this);
+    return it;
+  }
+
+  inline iterator_value begin_value(){
+    if(!n){
+        return this->end_value();
+      }
+    auto it = *new CHTBidirectionalIterator_Value<Key, Value, HashingMethod>(this);
+    return it;
+  }
+
   inline iterator end(){
-    return *new iterator(this, m/*, 0*/);
+    return *new iterator(this, m);
+  }
+
+  inline iterator_key end_key(){
+    return *new iterator_key(this, m);
+  }
+
+  inline iterator_value end_value(){
+    return *new iterator_value(this, m);
   }
 
   inline int countValues(){
@@ -123,6 +152,7 @@ bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** ou
 }
 
 template<typename Key, typename Value, typename HashingMethod>
+//typename ChainingHashTable<Key, Value, HashingMethod>::iterator
 Value* ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
   int i = hm(m, h(key));
   if(table[i] == nullptr){
@@ -130,6 +160,8 @@ Value* ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
     }
   for(size_t j = 0; j != table[i]->size(); j++) {
       if(table[i]->at(j).first == key){
+//          auto it = new ChainingHashTable<Key, Value, HashingMethod>::iterator(this, i, j);
+//          return *it;
           Value* oldValue = &table[i]->at(j).second;
           return oldValue;
         }
