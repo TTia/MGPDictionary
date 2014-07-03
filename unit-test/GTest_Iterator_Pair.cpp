@@ -92,3 +92,19 @@ TEST_F(GTest_Iterator_Pair, Iterate_over_table_Operator_elision) {
   it++; it++; it--; it++; it--; it--;
   ASSERT_EQ(it, table->begin());
 }
+
+TEST_F(GTest_Iterator_Pair, Inferior_and_Superior_Boundaries_EQ_End) {
+  std::hash<int> h;
+  auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  table->insert(1, 'a');
+  auto it = table->begin(), it_2 = table->begin();
+
+  ASSERT_NE(it, table->end());
+  ASSERT_NE(it_2, table->end());
+
+  it--;
+  ASSERT_EQ(it, table->end());
+
+  it_2++; it_2++;
+//  ASSERT_EQ(it_2, table->end());
+}

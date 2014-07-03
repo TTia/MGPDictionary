@@ -30,7 +30,7 @@ public:
   {
     validate();
     if(i<0 || i>=m || !table[i] || j > table[i]->size()){
-        this->i = m;
+        this->i = -1;
         this->j = 0;
       }
   }
@@ -47,19 +47,32 @@ private:
   std::shared_ptr<long int> version;
   long int originalVersion;
 
+  inline bool isEnd() const{
+    return i == -1 && j == 0;
+  }
+  inline void endIteration(){
+    i = -1;
+    j = 0;
+  }
   inline bool isValid() const{
     return *version == originalVersion;
   }
+  inline bool checkBoundaries() const{
+    return i >= 0 && i < m;
+  }
   void validate(){
     if(!isValid()){
-        i = m;
-        j = 0;
+        endIteration();
       }
   }
 
   void increment() {
     validate();
 
+    if(!checkBoundaries()){
+        endIteration();
+        return;
+      }
     j++;
     if(j >= 0 && j < table[i]->size()){
       return;
@@ -69,11 +82,11 @@ private:
   }
   void _searchNextChain(){
     j = 0;
-    while(i >= 0 && i < m && !table[i]){
+    while(checkBoundaries() && !table[i]){
         i++;
       }
-    if(i < 0 || i >= m){
-        i = m;
+    if(!checkBoundaries()){
+        endIteration();
         return;
       }
   }
@@ -81,6 +94,10 @@ private:
   void decrement() {
     validate();
 
+    if(!checkBoundaries()){
+        endIteration();
+        return;
+      }
     j--;
     if(j > 0 && j < table[i]->size()){
       return;
@@ -90,12 +107,11 @@ private:
   }
 
   void _searchPreviousChain(){
-    while(i < m && i >= 0 && !table[i]){
+    while(checkBoundaries() && !table[i]){
         i--;
       }
-    if(i < 0 || i >= m){
-        i = m;
-        j = 0;
+    if(!checkBoundaries()){
+        endIteration();
         return;
       }
     j = table[i]->size() - 1;
@@ -103,19 +119,16 @@ private:
 
   bool equal(CHTBidirectionalIterator const& other) const
   {
-    if(!isValid()){
-        if(!other.isValid()){
-          return table == other.table;
-        }
-        return table == other.table && m == other.i && j == other.j;
-      }
+    if((!isValid() || isEnd()) && (!other.isValid() || other.isEnd())){
+        return table == other.table;
+    }
     return table == other.table && i == other.i && j == other.j;
   }
 
   typename ChainingHashTable<Key, Value, HashingMethod>::Pair& dereference() const {
     if(!isValid()){
         throw std::logic_error("Invalid iterator.");
-      }else if(i == m && j == 0){
+      }else if(isEnd()){
         throw std::out_of_range("This iterator has reach the end.");
       }else if(!table[i]){
         throw std::out_of_range("Seg-fault. Sorry!");
@@ -169,10 +182,12 @@ private:
   CHTBidirectionalIterator<Key, Value, HashingMethod>* it;
 
   void increment() {
+    //Verifica stato valore
     this->it->increment();
   }
 
   void decrement() {
+    //Verifica stato valore
     this->it->decrement();
   }
 
@@ -182,6 +197,7 @@ private:
   }
 
   Value& dereference() const {
+    //Aggiungo (?!)l'impronta(?!) del valore al set.
     return this->it->dereference().second;
   }
 

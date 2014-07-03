@@ -55,15 +55,15 @@ public:
   }
 
   inline iterator end(){
-    return *new iterator(this, m);
+    return *new iterator(this, -1);
   }
 
   inline iterator_key end_key(){
-    return *new iterator_key(this, m);
+    return *new iterator_key(this, -1);
   }
 
   inline iterator_value end_value(){
-    return *new iterator_value(this, m);
+    return *new iterator_value(this, -1);
   }
 
   inline int countValues(){
