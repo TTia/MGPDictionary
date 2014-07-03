@@ -25,10 +25,9 @@ TEST_F(GTest_ChainingHashTable, coutnstructor_illegal_parameters) {
   try{
     new ChainingHashTable<int, char>(h, 1.2, -1);
     ASSERT_TRUE(false);
-  }catch(std::logic_error e){
+  }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
-  //ASSERT_THROW(stat,type);
 }
 
 TEST_F(GTest_ChainingHashTable, Insert_single) {
@@ -134,16 +133,68 @@ TEST_F(GTest_ChainingHashTable, Delete_non_existing_element) {
   ASSERT_FALSE(cht->del(17));
 }
 
-TEST_F(GTest_ChainingHashTable, Square_bracket_operator_Insert_Update){
-  ASSERT_FALSE(true);
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
+  std::hash<int> h;
+  auto cht = new ChainingHashTable<int, char>(h);
+  char a = 'a';
+  cht->insert(1, a);
+  auto it = cht->begin();
+  ASSERT_NE(it, cht->end());
+
+  cht->insert(2, a);
+  ASSERT_EQ(it, cht->end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
-  ASSERT_FALSE(true);
-}
 TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
+  std::hash<int> h;
+  auto cht = new ChainingHashTable<int, char>(h);
+  char a = 'a';
+  cht->insert(1, a);
+  cht->insert(2, a);
+
+  auto it = cht->begin();
+  ASSERT_NE(it, cht->end());
+  ASSERT_TRUE(cht->del(1));
+  ASSERT_EQ(it, cht->end());
+}
+
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Fail_to_remove){
+  std::hash<int> h;
+  auto cht = new ChainingHashTable<int, char>(h);
+  char a = 'a';
+  cht->insert(1, a);
+  cht->insert(2, a);
+
+  auto it = cht->begin();
+  ASSERT_NE(it, cht->end());
+  ASSERT_FALSE(cht->del(5));
+  ASSERT_NE(it, cht->end());
+}
+
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Square_brackets){
   ASSERT_FALSE(true);
 }
 TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
+  std::hash<int> h;
+  int m = 17;
+  auto cht = new ChainingHashTable<int, char>(h, 0.5, m);
+  char a = 'a';
+  cht->insert(1, a);
+
+  auto it = cht->begin();
+  ASSERT_NE(it, cht->end());
+  auto value = std::pair<int, char>(1,a);
+  ASSERT_EQ(*it, value);
+
+  delete cht;
+  try{
+    value = *it;
+    ASSERT_TRUE(false);
+  }catch(std::logic_error){
+    ASSERT_TRUE(true);
+  }
+}
+
+TEST_F(GTest_ChainingHashTable, Insert_right_value){
   ASSERT_FALSE(true);
 }

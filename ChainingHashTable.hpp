@@ -144,8 +144,6 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &
 
 template<typename Key, typename Value, typename HashingMethod>
 bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** output){
-  updateVersion();
-
   int i = hm(m, h(key));
   if(!table[i] || table[i]->size() == 0){
       return false;
@@ -156,6 +154,7 @@ bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** ou
             *output = new Value(std::move(table[i]->at(j).second));
           table[i]->erase(table[i]->begin()+j);
           n--;
+          updateVersion();
           break;
         }
     }

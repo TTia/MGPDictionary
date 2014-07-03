@@ -114,7 +114,7 @@ private:
 
   typename ChainingHashTable<Key, Value, HashingMethod>::Pair& dereference() const {
     if(!isValid()){
-        throw std::out_of_range("Invalid iterator.");
+        throw std::logic_error("Invalid iterator.");
       }else if(i == m && j == 0){
         throw std::out_of_range("This iterator has reach the end.");
       }else if(!table[i]){
