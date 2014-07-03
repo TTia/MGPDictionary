@@ -171,9 +171,6 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Fail_to_remove){
   ASSERT_NE(it, cht->end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Square_brackets){
-  ASSERT_FALSE(true);
-}
 TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
   std::hash<int> h;
   int m = 17;
@@ -193,8 +190,4 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
   }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
-}
-
-TEST_F(GTest_ChainingHashTable, Insert_right_value){
-  ASSERT_FALSE(true);
 }

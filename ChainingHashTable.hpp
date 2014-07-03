@@ -25,7 +25,7 @@ public:
   ChainingHashTable() = delete;
   ChainingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
-  bool insert(const Key, Value&, Value** = nullptr);
+  bool insert(const Key, const Value&, Value** = nullptr);
   bool del(const Key, Value** = nullptr);
   iterator_value search(const Key);
 
@@ -118,7 +118,7 @@ ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(Hash h, double l
 }
 
 template<typename Key, typename Value, typename HashingMethod>
-bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &value, Value** output){
+bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, const Value &value, Value** output){
   updateVersion();
 
   int i = hm(m, h(key));
