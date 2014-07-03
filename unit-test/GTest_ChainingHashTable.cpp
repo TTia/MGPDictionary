@@ -83,7 +83,7 @@ TEST_F(GTest_ChainingHashTable, Search_over_chain) {
 TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_on_empty_table) {
   std::hash<int> h;
   auto cht = new ChainingHashTable<int, char>(h, .5);
-  ASSERT_EQ(cht->search(1), nullptr);
+  ASSERT_EQ(cht->search(1), cht->end_value());
 }
 
 TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist) {
@@ -93,7 +93,7 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist) {
   char a = 'a';
   cht->insert(2*m+1, a);
   ASSERT_EQ(*cht->search(2*m+1), a);
-  ASSERT_EQ(cht->search(2*m), nullptr);
+  ASSERT_EQ(cht->search(2*m), cht->end_value());
 }
 TEST_F(GTest_ChainingHashTable, Delete_single) {
   std::hash<int> h;
@@ -120,7 +120,7 @@ TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
   ASSERT_EQ(cht->countValues(), 2);
   ASSERT_EQ(*cht->search(1), a);
   ASSERT_EQ(*cht->search(m+1), b);
-  ASSERT_EQ(cht->search(2*m+1), nullptr);
+  ASSERT_EQ(cht->search(2*m+1), cht->end_value());
 
   char* output = nullptr;
   ASSERT_TRUE(cht->del(m+1, &output));
@@ -132,4 +132,18 @@ TEST_F(GTest_ChainingHashTable, Delete_non_existing_element) {
   auto cht = new ChainingHashTable<int, char>(h);
   ASSERT_EQ(cht->countValues(), 0);
   ASSERT_FALSE(cht->del(17));
+}
+
+TEST_F(GTest_ChainingHashTable, Square_bracket_operator_Insert_Update){
+  ASSERT_FALSE(true);
+}
+
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
+  ASSERT_FALSE(true);
+}
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
+  ASSERT_FALSE(true);
+}
+TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
+  ASSERT_FALSE(true);
 }

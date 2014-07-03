@@ -8,15 +8,16 @@
 #include <vector>
 #include <exception>
 #include <stdexcept>
+#include <memory>
 
 template<typename Key, typename Value, typename HashingMethod = DivisionMethod>
 class ChainingHashTable{
   friend class CHTBidirectionalIterator<Key, Value, HashingMethod>;
 
 public:
-  typedef std::vector<std::pair<Key, Value>>* Table;
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
+  typedef std::vector<Pair>* Table;
   typedef CHTBidirectionalIterator<Key, Value, HashingMethod> iterator;
   typedef CHTBidirectionalIterator_Key<Key, Value, HashingMethod> iterator_key;
   typedef CHTBidirectionalIterator_Value<Key, Value, HashingMethod> iterator_value;
@@ -26,33 +27,31 @@ public:
 
   bool insert(const Key, Value&, Value** = nullptr);
   bool del(const Key, Value** = nullptr);
-//  iterator search(const Key);
-  Value* search(const Key);
-//  iterator operator[](const Key);
-  Value* operator[](const Key);
+  iterator_value search(const Key);
+
+  inline iterator operator[](const Key key){
+    return this->search(key);
+  }
 
   inline iterator begin(){
     if(!n){
         return this->end();
       }
-    auto it = *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
-    return it;
+    return *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
   }
 
   inline iterator_key begin_key(){
     if(!n){
         return this->end_key();
       }
-    auto it = *new CHTBidirectionalIterator_Key<Key, Value, HashingMethod>(this);
-    return it;
+    return *new CHTBidirectionalIterator_Key<Key, Value, HashingMethod>(this);
   }
 
   inline iterator_value begin_value(){
     if(!n){
         return this->end_value();
       }
-    auto it = *new CHTBidirectionalIterator_Value<Key, Value, HashingMethod>(this);
-    return it;
+    return *new CHTBidirectionalIterator_Value<Key, Value, HashingMethod>(this);
   }
 
   inline iterator end(){
@@ -75,6 +74,7 @@ public:
   }
 
   ~ChainingHashTable(){
+    updateVersion();
     if(!table){
         return;
       }
@@ -94,6 +94,12 @@ private:
   Hash h;
   Table* table;
   HashingMethod hm;
+
+  std::shared_ptr<long int> version;
+
+  inline void updateVersion(){
+    *version = *version + 1l;
+  }
 };
 
 
@@ -108,10 +114,13 @@ ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(Hash h, double l
   for(int i = 0; i<m; i++){
       table[i] = nullptr;
     }
+  version = std::make_shared<long int>(0);
 }
 
 template<typename Key, typename Value, typename HashingMethod>
 bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &value, Value** output){
+  updateVersion();
+
   int i = hm(m, h(key));
   Pair* pair = new Pair(key, value);
   if(!table[i]){
@@ -135,6 +144,8 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, Value &
 
 template<typename Key, typename Value, typename HashingMethod>
 bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** output){
+  updateVersion();
+
   int i = hm(m, h(key));
   if(!table[i] || table[i]->size() == 0){
       return false;
@@ -152,21 +163,19 @@ bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** ou
 }
 
 template<typename Key, typename Value, typename HashingMethod>
-//typename ChainingHashTable<Key, Value, HashingMethod>::iterator
-Value* ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
+typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
+ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
   int i = hm(m, h(key));
   if(table[i] == nullptr){
-      return nullptr;
+      return this->end_value();
     }
   for(size_t j = 0; j != table[i]->size(); j++) {
       if(table[i]->at(j).first == key){
-//          auto it = new ChainingHashTable<Key, Value, HashingMethod>::iterator(this, i, j);
-//          return *it;
-          Value* oldValue = &table[i]->at(j).second;
-          return oldValue;
+          auto it = new ChainingHashTable<Key, Value, HashingMethod>::iterator_value(this, i, j);
+          return *it;
         }
     }
-  return nullptr;
+  return this->end_value();
 }
 
 #endif // CHAININGHASHTABLE_HPP

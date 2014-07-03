@@ -32,7 +32,7 @@ TEST_F(GTest_Iterator_Pair, Iterate_over_table_Forward_order) {
 
   int result = 0;
   for(auto it = table->begin(); it != table->end(); it++){
-    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+    const ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
     result += current.first;
     }
   ASSERT_EQ(6, result);
