@@ -34,21 +34,21 @@ public:
   }
 
   inline iterator begin(){
-    if(!n){
+    if(!countValues()){
         return this->end();
       }
     return *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
   }
 
   inline iterator_key begin_key(){
-    if(!n){
+    if(!countValues()){
         return this->end_key();
       }
     return *new CHTBidirectionalIterator_Key<Key, Value, HashingMethod>(this);
   }
 
   inline iterator_value begin_value(){
-    if(!n){
+    if(!countValues()){
         return this->end_value();
       }
     return *new CHTBidirectionalIterator_Value<Key, Value, HashingMethod>(this);
@@ -67,109 +67,185 @@ public:
   }
 
   inline int countValues(){
-    return n;
+    return to_n+from_n;
   }
+
   inline double loadFactor(){
-    return double(n)/m;
+    return !(to_table? to_m: from_m) ?
+          0 : double(countValues())/ (to_table? to_m: from_m);
   }
 
   ~ChainingHashTable(){
     updateVersion();
-    if(!table){
-        return;
-      }
-    for(int i = 0; i<m; i++){
-        if(!table[i]){
-            delete table[i];
-          }
-      }
-    delete [] table;
+    _dealloc(from_table, &from_m, &from_n);
+    _dealloc(to_table, &to_m, &to_n);
   }
 
 private:
   typedef std::vector<std::pair<Key, Value>> __vector;
 
-  long int m, n;
-  double loadFactorThreshold;
+  long int from_m, to_m, from_n, to_n;
+  double upperLF, lowerLF;
   Hash h;
-  Table* table;
   HashingMethod hm;
+  Table *from_table, *to_table;
 
   std::shared_ptr<long int> version;
 
   inline void updateVersion(){
     *version = *version + 1l;
   }
+
+  bool _insert(Table* table,
+               long int* m, long int* n, const Key key, const Value& value, Value** output = nullptr){
+    int i = hm(*m, h(key));
+    auto pair = new std::pair<Key, Value>(key, value);
+    if(!table[i]){
+        table[i] = new std::vector<std::pair<Key, Value>>();
+        table[i]->push_back(*pair);
+        (*n)++;
+        return false;
+      }
+    for(size_t j = 0; j != table[i]->size(); j++) {
+        if(table[i]->at(j).first == key){
+            if(output)
+              *output = new Value(std::move(table[i]->at(j).second));
+            table[i]->at(j) = *pair;
+            return true;
+          }
+      }
+    table[i]->push_back(*pair);
+    (*n)++;
+    return false;
+  }
+
+  bool _del(Table* table,
+            long int* m, long int* n, const Key key, Value** output){
+    int i = hm(*m, h(key));
+    if(!table[i] || table[i]->size() == 0){
+        return false;
+      }
+    for(size_t j = 0; j != table[i]->size(); j++) {
+        if(table[i]->at(j).first == key){
+            if(output)
+              *output = new Value(std::move(table[i]->at(j).second));
+            table[i]->erase(table[i]->begin()+j);
+            (*n)--;
+            updateVersion();
+            break;
+          }
+      }
+    return true;
+  }
+
+  void _shrinkTable(){
+    if(from_m <= 17){
+        return;
+      }
+    to_m = from_m / 2;
+    to_n = 0;
+    _alloca(to_m);
+  }
+  void _enlargeTable(){
+    to_m = from_m * 2;
+    to_n = 0;
+    _alloca(to_m);
+  }
+  void _rehash(int k){
+    int r;
+    for(int i = 0; i < from_m && r < k; i++){
+        int j;
+        for(j = 0; r < k && from_table[i] && j < from_table[i]->size(); j++){
+            auto pair = from_table[i]->at(j);
+            _insert(to_table, &to_m, &to_n, pair.first, pair.second);
+            from_n--;
+            r++;
+          }
+        from_table[i]->erase(from_table[i]->begin(), from_table[i]->begin()+(j-1));
+        updateVersion();
+      }
+    if(!from_n){
+        from_m = to_m;
+        from_n = to_n;
+        _dealloc(from_table, &to_m, &to_n);
+        from_table = to_table;
+        to_table = nullptr;
+      }
+  }
+  void _alloca(int m){
+    to_table = new Table[m];
+    for(int i = 0; i<m; i++){
+        to_table[i] = nullptr;
+      }
+    to_m = m;
+  }
+  void _dealloc(Table* table, long int* m, long int* n){
+    for(int i = 0; table && i<*m; i++){
+        if(table[i]){
+            delete table[i];
+          }
+      }
+    delete [] table;
+    table = nullptr;
+    *m = 0;
+    *n = 0;
+  }
+
 };
-
-
 
 template<typename Key, typename Value, typename HashingMethod>
 ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(Hash h, double loadFactorThreshold, long int m):
-  m{m}, n{0}, loadFactorThreshold{loadFactorThreshold}, h{h}, table{nullptr}{
+  from_m{m}, to_m{0}, from_n{0}, to_n{0},
+  upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
+  from_table{nullptr}, to_table{nullptr}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
-  table = new Table[m];
+
+  from_table = new Table[m];
   for(int i = 0; i<m; i++){
-      table[i] = nullptr;
+      from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
 }
 
 template<typename Key, typename Value, typename HashingMethod>
 bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, const Value &value, Value** output){
+  if(loadFactor() > upperLF && !to_table){
+      _enlargeTable();
+    }
+  if(to_table){
+      _rehash(5);
+    }
   updateVersion();
-
-  int i = hm(m, h(key));
-  Pair* pair = new Pair(key, value);
-  if(!table[i]){
-      table[i] = new std::vector<Pair>();
-      table[i]->push_back(*pair);
-      n++;
-      return false;
-    }
-  for(size_t j = 0; j != table[i]->size(); j++) {
-      if(table[i]->at(j).first == key){
-          if(output)
-            *output = new Value(std::move(table[i]->at(j).second));
-          table[i]->at(j) = *pair;
-          return true;
-        }
-    }
-  table[i]->push_back(*pair);
-  n++;
-  return false;
+  return to_table ? _insert(to_table, &to_m, &to_n, key, value, output) :
+                    _insert(from_table, &from_m, &from_n, key, value, output);
 }
 
 template<typename Key, typename Value, typename HashingMethod>
 bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** output){
-  int i = hm(m, h(key));
-  if(!table[i] || table[i]->size() == 0){
-      return false;
+  if(loadFactor() < lowerLF && !to_table){
+      _shrinkTable();
     }
-  for(size_t j = 0; j != table[i]->size(); j++) {
-      if(table[i]->at(j).first == key){
-          if(output != nullptr)
-            *output = new Value(std::move(table[i]->at(j).second));
-          table[i]->erase(table[i]->begin()+j);
-          n--;
-          updateVersion();
-          break;
-        }
+  if(to_table){
+      _rehash(5);
     }
-  return true;
+  return _del(from_table, &from_m, &from_n, key, output) ||
+          (to_table && _del(to_table, &to_m, &to_n, key, output));
 }
 
 template<typename Key, typename Value, typename HashingMethod>
 typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
 ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
-  int i = hm(m, h(key));
-  if(table[i] == nullptr){
+  if(to_table){
+      _rehash(to_n);
+    }
+  int i = hm(from_m, h(key));
+  if(from_table[i] == nullptr){
       return this->end_value();
     }
-  for(size_t j = 0; j != table[i]->size(); j++) {
-      if(table[i]->at(j).first == key){
+  for(size_t j = 0; j != from_table[i]->size(); j++) {
+      if(from_table[i]->at(j).first == key){
           auto it = new ChainingHashTable<Key, Value, HashingMethod>::iterator_value(this, i, j);
           return *it;
         }

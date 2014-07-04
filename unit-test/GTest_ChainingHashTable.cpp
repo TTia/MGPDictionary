@@ -12,7 +12,7 @@ protected:
   }
 };
 
-TEST_F(GTest_ChainingHashTable, coutnstructor) {
+TEST_F(GTest_ChainingHashTable, Constructor) {
   std::hash<int> h;
   auto cht = new ChainingHashTable<int, char>(h, .5);
   EXPECT_EQ(cht->countValues(), 0);

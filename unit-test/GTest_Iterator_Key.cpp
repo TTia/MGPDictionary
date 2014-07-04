@@ -13,7 +13,6 @@ protected:
   }
 };
 
-
 TEST_F(GTest_Iterator_Key, Iterator_over_empty_table) {
   std::hash<int> h;
   auto table = new ChainingHashTable<int, char, DivisionMethod>(h);
@@ -87,4 +86,3 @@ TEST_F(GTest_Iterator_Key, Iterate_over_table_Operator_elision) {
   it++; it++; it--; it++; it--; it--;
   ASSERT_EQ(it, table->begin());
 }
-

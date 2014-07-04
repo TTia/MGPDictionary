@@ -25,8 +25,10 @@ public:
   friend class CHTBidirectionalIterator_Value<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator() = delete;
+//  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
+//    table{htable->table}, m{htable->m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
   CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
-    table{htable->table}, m{htable->m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
+    table{htable->from_table}, m{htable->from_m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
   {
     validate();
     if(i<0 || i>=m || !table[i] || j > table[i]->size()){
@@ -34,8 +36,10 @@ public:
         this->j = 0;
       }
   }
+//  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
+//    table{htable->table}, m{htable->m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
   CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
-    table{htable->table}, m{htable->m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
+    table{htable->from_table}, m{htable->from_m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
   {
     validate();
     this->_searchNextChain();
