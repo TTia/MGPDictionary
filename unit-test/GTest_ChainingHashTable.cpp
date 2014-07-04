@@ -94,6 +94,18 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist) {
   ASSERT_EQ(*cht->search(2*m+1), a);
   ASSERT_EQ(cht->search(2*m), cht->end_value());
 }
+
+TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_Extended) {
+  std::hash<int> h;
+  int m = 10;
+  auto cht = new ChainingHashTable<int, char>(h, .5, m);
+  for(int i = 0; i<100; i++){
+      cht->insert(i, 'a');
+      ASSERT_NE(cht->search(i), cht->end_value());
+    }
+  ASSERT_EQ(cht->search(100), cht->end_value());
+}
+
 TEST_F(GTest_ChainingHashTable, Delete_single) {
   std::hash<int> h;
   auto cht = new ChainingHashTable<int, char>(h, .5);

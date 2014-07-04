@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     gtest/gtest-all.cc \
     unit-test/GTest_Iterator_Pair.cpp \
     unit-test/GTest_Iterator_Key.cpp \
-    unit-test/GTest_Iterator_Value.cpp
+    unit-test/GTest_Iterator_Value.cpp \
+    unit-test/GTest_ChainingHashTable_Rehashing.cpp
 
 HEADERS += \
     Dictionary.hpp \

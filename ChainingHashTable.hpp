@@ -29,10 +29,6 @@ public:
   bool del(const Key, Value** = nullptr);
   iterator_value search(const Key);
 
-  inline iterator operator[](const Key key){
-    return this->search(key);
-  }
-
   inline iterator begin(){
     if(!countValues()){
         return this->end();
@@ -85,6 +81,7 @@ private:
   typedef std::vector<std::pair<Key, Value>> __vector;
 
   long int from_m, to_m, from_n, to_n;
+  long int min_m;
   double upperLF, lowerLF;
   Hash h;
   HashingMethod hm;
@@ -139,7 +136,7 @@ private:
   }
 
   void _shrinkTable(){
-    if(from_m <= 17){
+    if(from_m <= min_m){
         return;
       }
     to_m = from_m / 2;
@@ -152,16 +149,15 @@ private:
     _alloca(to_m);
   }
   void _rehash(int k){
-    int r;
-    for(int i = 0; i < from_m && r < k; i++){
-        int j;
-        for(j = 0; r < k && from_table[i] && j < from_table[i]->size(); j++){
-            auto pair = from_table[i]->at(j);
+    int r = 0;
+    for(int i = 0; i < from_m && r < k && from_n > 0; i++){
+        while(from_table[i] && r < k && from_table[i]->size() > 0){
+            auto pair = from_table[i]->at(0);
             _insert(to_table, &to_m, &to_n, pair.first, pair.second);
+            from_table[i]->erase(from_table[i]->begin());
             from_n--;
             r++;
           }
-        from_table[i]->erase(from_table[i]->begin(), from_table[i]->begin()+(j-1));
         updateVersion();
       }
     if(!from_n){
@@ -181,7 +177,7 @@ private:
   }
   void _dealloc(Table* table, long int* m, long int* n){
     for(int i = 0; table && i<*m; i++){
-        if(table[i]){
+        if(!table[i]){
             delete table[i];
           }
       }
@@ -195,9 +191,9 @@ private:
 
 template<typename Key, typename Value, typename HashingMethod>
 ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(Hash h, double loadFactorThreshold, long int m):
-  from_m{m}, to_m{0}, from_n{0}, to_n{0},
+  from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr}{
+  from_table{nullptr}, to_table{nullptr} {
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
@@ -238,7 +234,7 @@ template<typename Key, typename Value, typename HashingMethod>
 typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
 ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
   if(to_table){
-      _rehash(to_n);
+      _rehash(from_n);
     }
   int i = hm(from_m, h(key));
   if(from_table[i] == nullptr){
