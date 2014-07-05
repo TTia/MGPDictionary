@@ -1,6 +1,6 @@
 #ifndef DICTIONARY_HPP
 #define DICTIONARY_HPP
-
+/*
 #include "Hashing.hpp"
 
 template <typename Key, typename Value>
@@ -12,5 +12,5 @@ public:
   virtual int countValues() = 0;
   virtual double loadFactor() = 0;
 };
-
+*/
 #endif // DICTIONARY_HPP

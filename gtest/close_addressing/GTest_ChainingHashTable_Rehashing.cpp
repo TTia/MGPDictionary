@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "ChainingHashTable.hpp"
+#include "close_addressing/ChainingHashTable.hpp"
 
 #include <stdexcept>
 

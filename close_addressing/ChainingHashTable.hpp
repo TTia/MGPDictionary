@@ -1,7 +1,7 @@
 #ifndef CHAININGHASHTABLE_HPP
 #define CHAININGHASHTABLE_HPP
 
-#include "Dictionary.hpp"
+//#include "Dictionary.hpp"
 #include "ChainingHashTableIterator.hpp"
 
 #include <iostream>

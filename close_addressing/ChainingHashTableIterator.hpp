@@ -1,7 +1,7 @@
 #ifndef CHAININGHASHTABLEITERATOR_HPP
 #define CHAININGHASHTABLEITERATOR_HPP
 
-#include "Hashing.hpp"
+#include "../Hashing.hpp"
 #include <memory>
 #include <iterator>
 #include <boost/iterator/iterator_facade.hpp>
@@ -25,8 +25,6 @@ public:
   friend class CHTBidirectionalIterator_Value<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator() = delete;
-//  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
-//    table{htable->table}, m{htable->m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
   CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
     table{htable->from_table}, m{htable->from_m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
   {
@@ -36,8 +34,7 @@ public:
         this->j = 0;
       }
   }
-//  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
-//    table{htable->table}, m{htable->m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
+
   CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
     table{htable->from_table}, m{htable->from_m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
   {

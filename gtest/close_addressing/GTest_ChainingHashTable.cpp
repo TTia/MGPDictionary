@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "ChainingHashTable.hpp"
+#include "close_addressing/ChainingHashTable.hpp"
 
 #include <stdexcept>
 
@@ -99,9 +99,11 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_Extended) {
   std::hash<int> h;
   int m = 10;
   auto cht = new ChainingHashTable<int, char>(h, .5, m);
+  char a = 'a';
   for(int i = 0; i<100; i++){
-      cht->insert(i, 'a');
+      cht->insert(i, a);
       ASSERT_NE(cht->search(i), cht->end_value());
+      ASSERT_EQ(a, *cht->search(i));
     }
   ASSERT_EQ(cht->search(100), cht->end_value());
 }

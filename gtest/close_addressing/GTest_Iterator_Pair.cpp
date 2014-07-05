@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "ChainingHashTable.hpp"
-#include "ChainingHashTableIterator.hpp"
+#include "close_addressing/ChainingHashTable.hpp"
+#include "close_addressing/ChainingHashTableIterator.hpp"
 
 #include <stdexcept>
 
