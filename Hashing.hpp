@@ -31,11 +31,9 @@ public:
   }
 };
 
-/*
 class MultiplicationMethod: public HashingMethod{
 private:
   double a;
-  unsigned long long A;
 public:
   MultiplicationMethod() : a{double(rand())/RAND_MAX}{
   }
@@ -47,7 +45,6 @@ public:
     return ((A*k)% int(pow(2, w))) >> (w-r);
   }
 };
-*/
 
 class UniversalMethod: public HashingMethod{
 private:
@@ -59,7 +56,5 @@ public:
     return ((a*k+b)%p)%m;
   }
 };
-
-
 
 #endif // HASHING_HPP
