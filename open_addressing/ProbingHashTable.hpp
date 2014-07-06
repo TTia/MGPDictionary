@@ -2,11 +2,9 @@
 #define CHAININGHASHTABLE_HPP
 
 #include "Probing.hpp"
-#include "ProbingExceptions.hpp"
+//#include "ProbingExceptions.hpp"
 
 #include <iostream>
-#include <vector>
-#include <exception>
 #include <stdexcept>
 #include <memory>
 
@@ -83,7 +81,7 @@ private:
           return true;
         }
       }
-    throw FullHashTable;
+    throw std::logic_error("Rehashing should have occurred.");
   }
 
   bool _del(Table* table,
@@ -116,7 +114,29 @@ private:
     _alloca(to_m);
   }
   void _rehash(int k){
-    throw std::logic_error("Not Implemented.");
+    int r = 0;
+    for(int i = 0; i < from_m && r < k && from_n > 0; i++){
+        if(!from_table[i]){
+            continue;
+          }
+        if(from_table[i] == deleted){
+            from_table[i] = nullptr;
+            continue;
+          }
+        _insert(to_table, &to_m, &to_n, std::move(from_table[i]->first),
+                std::move(from_table[i]->second));
+        updateVersion();
+        from_table[i] = nullptr;
+        from_n--;
+        r++;
+      }
+    if(!from_n){
+        from_m = to_m;
+        from_n = to_n;
+        _dealloc(from_table, &to_m, &to_n);
+        from_table = to_table;
+        to_table = nullptr;
+      }
   }
   void _alloca(int m){
     to_table = new Table[m];
