@@ -100,9 +100,9 @@ private:
   bool _insert(Table* table,
                long int* m, long int* n, const Key key, const Value& value, Value** output = nullptr){
     int i = hm(*m, h(key));
-    auto pair = new std::pair<Key, Value>(key, value);
+    auto pair = new Pair(key, value);
     if(!table[i]){
-        table[i] = new std::vector<std::pair<Key, Value>>();
+        table[i] = new __vector();
         table[i]->push_back(*pair);
         (*n)++;
         return false;
@@ -133,10 +133,10 @@ private:
             table[i]->erase(table[i]->begin()+j);
             (*n)--;
             updateVersion();
-            break;
+            return output;
           }
       }
-    return true;
+    return false;
   }
 
   void _shrinkTable(){

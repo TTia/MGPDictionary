@@ -129,7 +129,7 @@ TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
   cht->insert(m+1, b);
   cht->insert(2*m+1, c);
   ASSERT_EQ(cht->countValues(), 3);
-  ASSERT_TRUE(cht->del(2*m+1));
+  cht->del(2*m+1);
   ASSERT_EQ(cht->countValues(), 2);
   ASSERT_EQ(*cht->search(1), a);
   ASSERT_EQ(*cht->search(m+1), b);
@@ -168,7 +168,7 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
 
   auto it = cht->begin();
   ASSERT_NE(it, cht->end());
-  ASSERT_TRUE(cht->del(1));
+  cht->del(1);
   ASSERT_EQ(it, cht->end());
 }
 

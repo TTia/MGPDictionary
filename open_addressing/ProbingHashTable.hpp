@@ -1,8 +1,8 @@
 #ifndef CHAININGHASHTABLE_HPP
 #define CHAININGHASHTABLE_HPP
 
-//#include "Dictionary.hpp"
 #include "Probing.hpp"
+#include "ProbingExceptions.hpp"
 
 #include <iostream>
 #include <vector>
@@ -10,21 +10,21 @@
 #include <stdexcept>
 #include <memory>
 
-template<typename Key, typename Value, typename ProbingMethod = DoubleHashing>
-class ChainingHashTable{
+template<typename Key, typename Value, typename ProbingMethod = LinearProbing>
+class ProbingHashTable{
 
 public:
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
-  typedef Pair** Table;
+  typedef Pair* Table;
 
-  ChainingHashTable() = delete;
-  ChainingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
+  ProbingHashTable() = delete;
+  ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
   bool insert(const Key, const Value&, Value** = nullptr);
   bool del(const Key, Value** = nullptr);
 //  iterator_value search(const Key);
-  Value& search(const Key);
+  Value* search(const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
@@ -39,7 +39,7 @@ public:
           0 : double(countValues())/ (to_table? to_m: from_m);
   }
 
-  ~ChainingHashTable(){
+  ~ProbingHashTable(){
     updateVersion();
     _dealloc(from_table, &from_m, &from_n);
     _dealloc(to_table, &to_m, &to_n);
@@ -50,8 +50,9 @@ private:
   long int min_m;
   double upperLF, lowerLF;
   Hash h;
-  HashingMethod hm;
+  ProbingMethod pm;
   Table *from_table, *to_table;
+  Pair* deleted;
 
   std::shared_ptr<long int> version;
 
@@ -59,14 +60,46 @@ private:
     *version = *version + 1l;
   }
 
-  bool _insert(Table* table,
-               long int* m, long int* n, const Key key, const Value& value, Value** output = nullptr){
-    throw std::logic_error("Not Implemented.");
+  bool _insert(Table* table, long int* m, long int* n,
+               const Key key, const Value& value,
+               Value** output = nullptr){
+    for(long int _i = 0; _i < *m; _i++){
+        int index = pm(_i, *m, h(key));
+//        std::cout << key << " - " << value << " @ "<< index << std::endl;
+        if(!table[index] || table[index] == deleted){
+          auto pair = new Pair(key, value);
+          table[index] = pair;
+          (*n)++;
+//        std::cout << "Inserting - NULLPTR" << std::endl;
+          updateVersion();
+          return false;
+        }else if(table[index]->first == key){
+          if(output)
+            *output = new Value(std::move(table[index]->second));
+          auto pair = new Pair(key, value);
+          table[index] = pair;
+//          std::cout << "Inserting - updating" << std::endl;
+          updateVersion();
+          return true;
+        }
+      }
+    throw FullHashTable;
   }
 
   bool _del(Table* table,
             long int* m, long int* n, const Key key, Value** output){
-    throw std::logic_error("Not Implemented.");
+    for(int _i = 0; _i<*m; _i++){
+        int index = pm(_i, *m, h(key));
+        if(table[index] && table[index] != deleted && table[index]->first == key){
+            if(output)
+              *output = new Value(std::move(table[index]->second));
+            table[index] = deleted;
+            (*n)--;
+            updateVersion();
+            return output;
+          }
+      }
+    return false;
   }
 
   void _shrinkTable(){
@@ -106,19 +139,25 @@ private:
 
 };
 
-template<typename Key, typename Value, typename HashingMethod>
-ChainingHashTable<Key, Value, HashingMethod>::ChainingHashTable(Hash h, double loadFactorThreshold, long int m):
+template<typename Key, typename Value, typename ProbingMethod>
+ProbingHashTable<Key, Value, ProbingMethod>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
   from_table{nullptr}, to_table{nullptr} {
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
-    throw std::logic_error("Not Implemented.");
+
+  deleted = new Pair();
+  from_table = new Table[from_m];
+  for(int i = 0; i<from_m; i++){
+      from_table[i] = nullptr;
+    }
+  version = std::make_shared<long int>(0);
 }
 
-template<typename Key, typename Value, typename HashingMethod>
-bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, const Value &value, Value** output){
+template<typename Key, typename Value, typename ProbingMethod>
+bool ProbingHashTable<Key, Value, ProbingMethod>::insert(const Key key, const Value &value, Value** output){
   if(loadFactor() > upperLF && !to_table){
       _enlargeTable();
     }
@@ -130,8 +169,8 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, const V
                     _insert(from_table, &from_m, &from_n, key, value, output);
 }
 
-template<typename Key, typename Value, typename HashingMethod>
-bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** output){
+template<typename Key, typename Value, typename ProbingMethod>
+bool ProbingHashTable<Key, Value, ProbingMethod>::del(const Key key, Value** output){
   if(loadFactor() < lowerLF && !to_table){
       _shrinkTable();
     }
@@ -142,11 +181,27 @@ bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** ou
           (to_table && _del(to_table, &to_m, &to_n, key, output));
 }
 
-template<typename Key, typename Value, typename HashingMethod>
+template<typename Key, typename Value, typename ProbingMethod>
 //typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
-Value&
-ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
-  throw std::logic_error("Not Implemented.");
+Value*
+ProbingHashTable<Key, Value, ProbingMethod>::search(const Key key){
+  if(to_table){
+      _rehash(from_n);
+    }
+//  if(from_table[i] == nullptr){
+//      return this->end_value();
+//    }
+
+  for(int _i = 0; _i < from_m; _i++){
+      int index = pm(_i, from_m, h(key));
+      if(!from_table[index]){
+          return nullptr;
+        }
+      if(from_table[index]->first == key){
+          return &from_table[index]->second;
+        }
+    }
+  return nullptr;
 }
 
 #endif // CHAININGHASHTABLE_HPP
