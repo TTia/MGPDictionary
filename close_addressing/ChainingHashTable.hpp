@@ -29,6 +29,10 @@ public:
   bool del(const Key, Value** = nullptr);
   iterator_value search(const Key);
 
+  inline int rehashThreshold(){
+    return (to_table? to_m: from_m) * 0.10;
+  }
+
   inline iterator begin(){
     if(!countValues()){
         return this->end();
@@ -211,7 +215,7 @@ bool ChainingHashTable<Key, Value, HashingMethod>::insert(const Key key, const V
       _enlargeTable();
     }
   if(to_table){
-      _rehash(5);
+      _rehash(rehashThreshold());
     }
   updateVersion();
   return to_table ? _insert(to_table, &to_m, &to_n, key, value, output) :
@@ -224,7 +228,7 @@ bool ChainingHashTable<Key, Value, HashingMethod>::del(const Key key, Value** ou
       _shrinkTable();
     }
   if(to_table){
-      _rehash(5);
+      _rehash(rehashThreshold());
     }
   return _del(from_table, &from_m, &from_n, key, output) ||
           (to_table && _del(to_table, &to_m, &to_n, key, output));
