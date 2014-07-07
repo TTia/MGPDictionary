@@ -12,14 +12,16 @@
 template<typename Key, typename Value, typename ProbingMethod = LinearProbing>
 class ProbingHashTable{
   friend class PHTBidirectionalIterator<Key, Value, ProbingMethod>;
+  friend class PHTBidirectionalIterator_Key<Key, Value, ProbingMethod>;
+  friend class PHTBidirectionalIterator_Value<Key, Value, ProbingMethod>;
 
 public:
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
   typedef Pair* Table;
   typedef PHTBidirectionalIterator<Key, Value, ProbingMethod> iterator;
-//  typedef CHTBidirectionalIterator_Key<Key, Value, HashingMethod> iterator_key;
-//  typedef CHTBidirectionalIterator_Value<Key, Value, HashingMethod> iterator_value;
+  typedef PHTBidirectionalIterator_Key<Key, Value, ProbingMethod> iterator_key;
+  typedef PHTBidirectionalIterator_Value<Key, Value, ProbingMethod> iterator_value;
 
   ProbingHashTable() = delete;
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
@@ -54,6 +56,34 @@ public:
 
   inline iterator end(){
     return *new iterator(this, -1);
+  }
+
+  inline iterator_key begin_key(){
+    if(!countValues()){
+        return this->end();
+      }
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator_key(this);
+  }
+
+  inline iterator_key end_key(){
+    return *new iterator_key(this, -1);
+  }
+
+  inline iterator_value begin_value(){
+    if(!countValues()){
+        return this->end_value();
+      }
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator_value(this);
+  }
+
+  inline iterator_value end_value(){
+    return *new iterator_value(this, -1);
   }
 
   ~ProbingHashTable(){
