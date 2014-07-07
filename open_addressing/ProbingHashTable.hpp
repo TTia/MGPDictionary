@@ -1,27 +1,30 @@
 #ifndef CHAININGHASHTABLE_HPP
 #define CHAININGHASHTABLE_HPP
 
-//#include "Probing.hpp"
 #include "ProbingHashTableIterator.hpp"
-//#include "ProbingExceptions.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <memory>
 
-template<typename Key, typename Value, typename ProbingMethod = LinearProbing>
+template <typename Key, typename Value, typename Method>
+class PHTBidirectionalIterator;
+template<typename Key, typename Value, typename Method>
+class PHTBidirectionalIterator_Key;
+template<typename Key, typename Value, typename Method>
+class PHTBidirectionalIterator_Value;
+
+template<typename Key, typename Value, typename Method = LinearProbing>
 class ProbingHashTable{
-  friend class PHTBidirectionalIterator<Key, Value, ProbingMethod>;
-  friend class PHTBidirectionalIterator_Key<Key, Value, ProbingMethod>;
-  friend class PHTBidirectionalIterator_Value<Key, Value, ProbingMethod>;
+  friend class PHTBidirectionalIterator<Key, Value, Method>;
 
 public:
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
   typedef Pair* Table;
-  typedef PHTBidirectionalIterator<Key, Value, ProbingMethod> iterator;
-  typedef PHTBidirectionalIterator_Key<Key, Value, ProbingMethod> iterator_key;
-  typedef PHTBidirectionalIterator_Value<Key, Value, ProbingMethod> iterator_value;
+  typedef PHTBidirectionalIterator<Key, Value, Method> iterator;
+  typedef PHTBidirectionalIterator_Key<Key, Value, Method> iterator_key;
+  typedef PHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
   ProbingHashTable() = delete;
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
@@ -60,7 +63,7 @@ public:
 
   inline iterator_key begin_key(){
     if(!countValues()){
-        return this->end();
+        return this->end_key();
       }
     if(to_table){
         _rehash(from_n);
@@ -97,7 +100,7 @@ private:
   long int min_m;
   double upperLF, lowerLF;
   Hash h;
-  ProbingMethod pm;
+  Method pm;
   Table *from_table, *to_table;
   Pair* deleted;
 
@@ -112,12 +115,10 @@ private:
                Value** output = nullptr){
     for(long int _i = 0; _i < *m; _i++){
         int index = pm(_i, *m, h(key));
-//        std::cout << key << " - " << value << " @ "<< index << std::endl;
         if(!table[index] || table[index] == deleted){
           auto pair = new Pair(key, value);
           table[index] = pair;
           (*n)++;
-//        std::cout << "Inserting - NULLPTR" << std::endl;
           updateVersion();
           return false;
         }else if(table[index]->first == key){
@@ -125,7 +126,6 @@ private:
             *output = new Value(std::move(table[index]->second));
           auto pair = new Pair(key, value);
           table[index] = pair;
-//          std::cout << "Inserting - updating" << std::endl;
           updateVersion();
           return true;
         }
@@ -208,8 +208,8 @@ private:
 
 };
 
-template<typename Key, typename Value, typename ProbingMethod>
-ProbingHashTable<Key, Value, ProbingMethod>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
+template<typename Key, typename Value, typename Method>
+ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
   from_table{nullptr}, to_table{nullptr} {
@@ -225,8 +225,8 @@ ProbingHashTable<Key, Value, ProbingMethod>::ProbingHashTable(Hash h, double loa
   version = std::make_shared<long int>(0);
 }
 
-template<typename Key, typename Value, typename ProbingMethod>
-bool ProbingHashTable<Key, Value, ProbingMethod>::insert(const Key key, const Value &value, Value** output){
+template<typename Key, typename Value, typename Method>
+bool ProbingHashTable<Key, Value, Method>::insert(const Key key, const Value &value, Value** output){
   if(loadFactor() > upperLF && !to_table){
       _enlargeTable();
     }
@@ -238,8 +238,8 @@ bool ProbingHashTable<Key, Value, ProbingMethod>::insert(const Key key, const Va
                     _insert(from_table, &from_m, &from_n, key, value, output);
 }
 
-template<typename Key, typename Value, typename ProbingMethod>
-bool ProbingHashTable<Key, Value, ProbingMethod>::del(const Key key, Value** output){
+template<typename Key, typename Value, typename Method>
+bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value** output){
   if(loadFactor() < lowerLF && !to_table){
       _shrinkTable();
     }
@@ -250,10 +250,10 @@ bool ProbingHashTable<Key, Value, ProbingMethod>::del(const Key key, Value** out
           (to_table && _del(to_table, &to_m, &to_n, key, output));
 }
 
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 //typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
 Value*
-ProbingHashTable<Key, Value, ProbingMethod>::search(const Key key){
+ProbingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
     }

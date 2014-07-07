@@ -165,9 +165,7 @@ private:
     return this->it->dereference().first;
   }
 public:
-  typedef CHTBidirectionalIterator<Key, Value, HashingMethod> super;
   friend class boost::iterator_core_access;
-  friend class ChainingHashTable<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
   it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}
@@ -185,12 +183,10 @@ private:
   CHTBidirectionalIterator<Key, Value, HashingMethod>* it;
 
   void increment() {
-    //Verifica stato valore
     this->it->increment();
   }
 
   void decrement() {
-    //Verifica stato valore
     this->it->decrement();
   }
 
@@ -200,14 +196,11 @@ private:
   }
 
   Value& dereference() const {
-    //Aggiungo (?!)l'impronta(?!) del valore al set.
     return this->it->dereference().second;
   }
 
 public:
-  typedef CHTBidirectionalIterator<Key, Value, HashingMethod> super;
   friend class boost::iterator_core_access;
-  friend class ChainingHashTable<Key, Value, HashingMethod>;
 
   CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
   it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}

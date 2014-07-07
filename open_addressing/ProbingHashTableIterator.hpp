@@ -1,7 +1,6 @@
 #ifndef CHAININGHASHTABLEITERATOR_HPP
 #define CHAININGHASHTABLEITERATOR_HPP
 
-#include "../Hashing.hpp"
 #include "Probing.hpp"
 #include "ProbingHashTable.hpp"
 #include <memory>
@@ -9,25 +8,25 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <stdexcept>
 
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 class ProbingHashTable;
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 class PHTBidirectionalIterator_Key;
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 class PHTBidirectionalIterator_Value;
 
-template <typename Key, typename Value, typename ProbingMethod = LinearProbing>
+template <typename Key, typename Value, typename Method = LinearProbing>
 class PHTBidirectionalIterator:
-    public boost::iterator_facade<PHTBidirectionalIterator<Key, Value, ProbingMethod>,
-                                  typename ProbingHashTable<Key, Value, ProbingMethod>::Pair&,
+    public boost::iterator_facade<PHTBidirectionalIterator<Key, Value, Method>,
+                                  typename ProbingHashTable<Key, Value, Method>::Pair&,
                                   std::bidirectional_iterator_tag> {
 public:
   friend class boost::iterator_core_access;
-  friend class PHTBidirectionalIterator_Key<Key, Value, ProbingMethod>;
-  friend class PHTBidirectionalIterator_Value<Key, Value, ProbingMethod>;
+  friend class PHTBidirectionalIterator_Key<Key, Value, Method>;
+  friend class PHTBidirectionalIterator_Value<Key, Value, Method>;
 
   PHTBidirectionalIterator() = delete;
-  PHTBidirectionalIterator(ProbingHashTable<Key, Value, ProbingMethod>* htable, int i):
+  PHTBidirectionalIterator(ProbingHashTable<Key, Value, Method>* htable, int i):
     table{htable->from_table}, deleted{htable->deleted}, m{htable->from_m}, i{i}, version{htable->version}, originalVersion{*htable->version}
   {
     if(!isValid() || !checkBoundaries() || !table[i] || table[i] == deleted){
@@ -35,7 +34,7 @@ public:
       }
   }
 
-  PHTBidirectionalIterator(ProbingHashTable<Key, Value, ProbingMethod>* htable):
+  PHTBidirectionalIterator(ProbingHashTable<Key, Value, Method>* htable):
     table{htable->from_table}, deleted{htable->deleted}, m{htable->from_m}, i{0}, version{htable->version}, originalVersion{*htable->version}
   {
     if(!table[i] || table[i] == deleted){
@@ -47,8 +46,8 @@ public:
       }
   }
 private:
-  typename ProbingHashTable<Key, Value, ProbingMethod>::Table* table;
-  const typename ProbingHashTable<Key, Value, ProbingMethod>::Pair* deleted;
+  typename ProbingHashTable<Key, Value, Method>::Table* table;
+  const typename ProbingHashTable<Key, Value, Method>::Pair* deleted;
 
   long int m, i;
   std::shared_ptr<long int> version;
@@ -108,7 +107,7 @@ private:
     return table == other.table && i == other.i;
   }
 
-  typename ProbingHashTable<Key, Value, ProbingMethod>::Pair& dereference() const {
+  typename ProbingHashTable<Key, Value, Method>::Pair& dereference() const {
     if(!isValid()){
         throw std::logic_error("Invalid iterator.");
       }else if(isEnd()){
@@ -120,13 +119,13 @@ private:
   }
 };
 
-template <typename Key, typename Value, typename HashingMethod = LinearProbing>
+template <typename Key, typename Value, typename Method = LinearProbing>
 class PHTBidirectionalIterator_Key:
-    public boost::iterator_facade<PHTBidirectionalIterator_Key<Key, Value, ProbingMethod>,
+    public boost::iterator_facade<PHTBidirectionalIterator_Key<Key, Value, Method>,
                                   Key&,
                                   std::bidirectional_iterator_tag> {
 private:
-  PHTBidirectionalIterator<Key, Value, HashingMethod>* it;
+  PHTBidirectionalIterator<Key, Value, Method>* it;
 
   void increment() {
     this->it->increment();
@@ -147,20 +146,20 @@ private:
 public:
   friend class boost::iterator_core_access;
 
-  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, ProbingMethod>* htable, int i):
-  it{new PHTBidirectionalIterator<Key, Value, ProbingMethod>(htable, i)}{}
+  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, Method>* htable, int i):
+  it{new PHTBidirectionalIterator<Key, Value, Method>(htable, i)}{}
 
-  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, ProbingMethod>* htable):
-  it{new PHTBidirectionalIterator<Key, Value, ProbingMethod>(htable)}{}
+  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, Method>* htable):
+  it{new PHTBidirectionalIterator<Key, Value, Method>(htable)}{}
 };
 
-template <typename Key, typename Value, typename ProbingMethod = LinearProbing>
+template <typename Key, typename Value, typename Method = LinearProbing>
 class PHTBidirectionalIterator_Value:
-    public boost::iterator_facade<PHTBidirectionalIterator_Value<Key, Value, LinearProbing>,
+    public boost::iterator_facade<PHTBidirectionalIterator_Value<Key, Value, Method>,
                                   Value&,
                                   std::bidirectional_iterator_tag> {
 private:
-  PHTBidirectionalIterator<Key, Value, ProbingMethod>* it;
+  PHTBidirectionalIterator<Key, Value, Method>* it;
 
   void increment() {
     this->it->increment();
@@ -182,11 +181,11 @@ private:
 public:
   friend class boost::iterator_core_access;
 
-  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, ProbingMethod>* htable, int i):
-  it{new PHTBidirectionalIterator<Key, Value, ProbingMethod>(htable, i)}{}
+  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, Method>* htable, int i):
+  it{new PHTBidirectionalIterator<Key, Value, Method>(htable, i)}{}
 
-  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, ProbingMethod>* htable):
-  it{new PHTBidirectionalIterator<Key, Value, ProbingMethod>(htable)}{}
+  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, Method>* htable):
+  it{new PHTBidirectionalIterator<Key, Value, Method>(htable)}{}
 };
 
 #endif
