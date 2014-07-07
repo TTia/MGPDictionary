@@ -1,7 +1,8 @@
 #ifndef CHAININGHASHTABLE_HPP
 #define CHAININGHASHTABLE_HPP
 
-#include "Probing.hpp"
+//#include "Probing.hpp"
+#include "ProbingHashTableIterator.hpp"
 //#include "ProbingExceptions.hpp"
 
 #include <iostream>
@@ -10,11 +11,15 @@
 
 template<typename Key, typename Value, typename ProbingMethod = LinearProbing>
 class ProbingHashTable{
+  friend class PHTBidirectionalIterator<Key, Value, ProbingMethod>;
 
 public:
   typedef std::hash<Key> Hash;
   typedef std::pair<Key, Value> Pair;
   typedef Pair* Table;
+  typedef PHTBidirectionalIterator<Key, Value, ProbingMethod> iterator;
+//  typedef CHTBidirectionalIterator_Key<Key, Value, HashingMethod> iterator_key;
+//  typedef CHTBidirectionalIterator_Value<Key, Value, HashingMethod> iterator_value;
 
   ProbingHashTable() = delete;
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
@@ -35,6 +40,20 @@ public:
   inline double loadFactor(){
     return !(to_table? to_m: from_m) ?
           0 : double(countValues())/ (to_table? to_m: from_m);
+  }
+
+  inline iterator begin(){
+    if(!countValues()){
+        return this->end();
+      }
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator(this);
+  }
+
+  inline iterator end(){
+    return *new iterator(this, -1);
   }
 
   ~ProbingHashTable(){

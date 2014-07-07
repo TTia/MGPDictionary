@@ -5,7 +5,7 @@
 
 class ProbingMethod{
 public:
-  ProbingMethod(): hm{new UniversalMethod()}{}
+  ProbingMethod(): hm{new DivisionMethod()}{}
   ProbingMethod(HashingMethod hm): hm{&hm}{}
   virtual unsigned long probe(unsigned long i, unsigned long m, unsigned long k) const = 0;
   unsigned long operator()(unsigned long i, const unsigned long m, const unsigned long k) const{
@@ -37,7 +37,7 @@ public:
 
 class DoubleHashing: public ProbingMethod{
 public:
-  DoubleHashing(): ProbingMethod(), h2{new UniversalMethod()}{}
+  DoubleHashing(): ProbingMethod(), h2{new DivisionMethod()}{}
   DoubleHashing(HashingMethod h1, HashingMethod h2): ProbingMethod(h1), h2{&h2}{}
   inline unsigned long probe(unsigned long i, unsigned long m, unsigned long k) const{
     //h(k,i) = (h1(k) + i*(h2(k)))%m

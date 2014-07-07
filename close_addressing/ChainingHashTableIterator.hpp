@@ -2,6 +2,7 @@
 #define CHAININGHASHTABLEITERATOR_HPP
 
 #include "../Hashing.hpp"
+#include "ChainingHashTable.hpp"
 #include <memory>
 #include <iterator>
 #include <boost/iterator/iterator_facade.hpp>
@@ -9,9 +10,10 @@
 
 template<typename Key, typename Value, typename HashingMethod>
 class ChainingHashTable;
-template<typename Key, typename Value, typename HashingMethod>
+
+template<typename Key, typename Value, typename ProbingMethod>
 class CHTBidirectionalIterator_Key;
-template<typename Key, typename Value, typename HashingMethod>
+template<typename Key, typename Value, typename ProbingMethod>
 class CHTBidirectionalIterator_Value;
 
 template <typename Key, typename Value, typename HashingMethod = DivisionMethod>

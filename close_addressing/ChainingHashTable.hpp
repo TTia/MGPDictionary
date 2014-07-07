@@ -37,21 +37,30 @@ public:
     if(!countValues()){
         return this->end();
       }
-    return *new CHTBidirectionalIterator<Key, Value, HashingMethod>(this);
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator(this);
   }
 
   inline iterator_key begin_key(){
     if(!countValues()){
         return this->end_key();
       }
-    return *new CHTBidirectionalIterator_Key<Key, Value, HashingMethod>(this);
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator_key(this);
   }
 
   inline iterator_value begin_value(){
     if(!countValues()){
         return this->end_value();
       }
-    return *new CHTBidirectionalIterator_Value<Key, Value, HashingMethod>(this);
+    if(to_table){
+        _rehash(from_n);
+      }
+    return *new iterator_value(this);
   }
 
   inline iterator end(){
