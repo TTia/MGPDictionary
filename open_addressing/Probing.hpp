@@ -5,8 +5,8 @@
 
 class ProbingMethod{
 public:
-  ProbingMethod(): hm{new DivisionMethod()}{}
   ProbingMethod(HashingMethod hm): hm{&hm}{}
+  ProbingMethod(): hm{new DivisionMethod()}{}
   virtual unsigned long probe(unsigned long i, unsigned long m, unsigned long k) const = 0;
   unsigned long operator()(unsigned long i, const unsigned long m, const unsigned long k) const{
     return this->probe(i,m,k);
@@ -48,3 +48,4 @@ private:
 };
 
 #endif // PROBING_HPP
+

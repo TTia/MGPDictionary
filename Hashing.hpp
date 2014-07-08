@@ -48,9 +48,10 @@ public:
 
 class UniversalMethod: public HashingMethod{
 private:
+  static const unsigned long PRETTY_BIG_PRIME_NUMBER = 104729;
   unsigned long p, a, b;
 public:
-  UniversalMethod(): p{17}, a{rand()/RAND_MAX*p}, b{rand()/RAND_MAX*p}{
+  UniversalMethod(): p{PRETTY_BIG_PRIME_NUMBER}, a(double(rand())/RAND_MAX*p), b(double(rand())/RAND_MAX*p){
   }
   inline unsigned long hash(unsigned long m, unsigned long k) const{
     return ((a*k+b)%p)%m;

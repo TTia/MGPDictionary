@@ -1,9 +1,7 @@
 #include <iostream>
-//#include "Dictionary.hpp"
-#include "close_addressing/ChainingHashTable.hpp"
-//#include "OpenAddressingHashTable.hpp"
+
 #include "gtest/gtest.h"
-#include "close_addressing/ChainingHashTableIterator.hpp"
+#include "Hashing.hpp"
 
 using namespace std;
 
