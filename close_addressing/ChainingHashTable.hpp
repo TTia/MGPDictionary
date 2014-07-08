@@ -255,7 +255,7 @@ ChainingHashTable<Key, Value, HashingMethod>::search(const Key key){
     }
   for(size_t j = 0; j != from_table[i]->size(); j++) {
       if(from_table[i]->at(j).first == key){
-          auto it = new ChainingHashTable<Key, Value, HashingMethod>::iterator_value(this, i, j);
+          auto it = new iterator_value(this, i, j);
           return *it;
         }
     }

@@ -31,8 +31,8 @@ public:
 
   bool insert(const Key, const Value&, Value** = nullptr);
   bool del(const Key, Value** = nullptr);
-//  iterator_value search(const Key);
-  Value* search(const Key);
+  iterator_value search(const Key);
+//  Value* search(const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
@@ -251,26 +251,26 @@ bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value** output){
 }
 
 template<typename Key, typename Value, typename Method>
-//typename ChainingHashTable<Key, Value, HashingMethod>::iterator_value
-Value*
+typename ProbingHashTable<Key, Value, Method>::iterator_value
+//Value*
 ProbingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
     }
-//  if(from_table[i] == nullptr){
-//      return this->end_value();
-//    }
-
   for(int _i = 0; _i < from_m; _i++){
       int index = pm(_i, from_m, h(key));
       if(!from_table[index]){
-          return nullptr;
+//          return nullptr;
+          return end_value();
         }
       if(from_table[index]->first == key){
-          return &from_table[index]->second;
+//          return &from_table[index]->second;
+          auto it = new iterator_value(this, index);
+          return *it;
         }
     }
-  return nullptr;
+//  return nullptr;
+    return end_value();
 }
 
 #endif // CHAININGHASHTABLE_HPP

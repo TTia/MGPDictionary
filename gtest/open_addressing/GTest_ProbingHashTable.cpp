@@ -80,8 +80,8 @@ TEST_F(GTest_ProbingHashTable, Collisions) {
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_on_empty_table) {
   std::hash<int> h;
   auto pht = new ProbingHashTable<int, char>(h, .5);
-//  ASSERT_EQ(pht->search(1), pht->end_value());
-  ASSERT_EQ(pht->search(1), nullptr);
+  ASSERT_EQ(pht->search(1), pht->end_value());
+//  ASSERT_EQ(pht->search(1), nullptr);
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
@@ -91,8 +91,8 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
   char a = 'a';
   pht->insert(2*m+1, a);
   ASSERT_EQ(*pht->search(2*m+1), a);
-//  ASSERT_EQ(pht->search(2*m), cht->end_value());
-  ASSERT_EQ(pht->search(2*m), nullptr);
+  ASSERT_EQ(pht->search(2*m), pht->end_value());
+//  ASSERT_EQ(pht->search(2*m), nullptr);
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
@@ -102,12 +102,12 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
   char a = 'a';
   for(int i = 0; i<100; i++){
       pht->insert(i, a);
-//      ASSERT_NE(pht->search(i), pht->end_value());
-      ASSERT_NE(pht->search(i), nullptr);
+      ASSERT_NE(pht->search(i), pht->end_value());
+//      ASSERT_NE(pht->search(i), nullptr);
       ASSERT_EQ(a, *pht->search(i));
     }
-//  ASSERT_EQ(pht->search(100), pht->end_value());
-  ASSERT_EQ(pht->search(100), nullptr);
+  ASSERT_EQ(pht->search(100), pht->end_value());
+//  ASSERT_EQ(pht->search(100), nullptr);
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_single) {
@@ -135,8 +135,8 @@ TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
   ASSERT_EQ(pht->countValues(), 2);
   ASSERT_EQ(*pht->search(1), a);
   ASSERT_EQ(*pht->search(m+1), b);
-//  ASSERT_EQ(pht->search(2*m+1), pht->end_value());
-  ASSERT_EQ(pht->search(2*m+1), nullptr);
+  ASSERT_EQ(pht->search(2*m+1), pht->end_value());
+//  ASSERT_EQ(pht->search(2*m+1), nullptr);
 
   char* output = nullptr;
   ASSERT_TRUE(pht->del(m+1, &output));
@@ -153,59 +153,57 @@ TEST_F(GTest_ProbingHashTable, Delete_non_existing_element) {
   ASSERT_EQ(pht->countValues(), 0);
 }
 
-/*
-
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
+TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Insert){
   std::hash<int> h;
-  auto cht = new <int, char>(h);
+  auto pht = new ProbingHashTable<int, char>(h);
   char a = 'a';
-  cht->insert(1, a);
-  auto it = cht->begin();
-  ASSERT_NE(it, cht->end());
+  pht->insert(1, a);
+  auto it = pht->begin();
+  ASSERT_NE(it, pht->end());
 
-  cht->insert(2, a);
-  ASSERT_EQ(it, cht->end());
+  pht->insert(2, a);
+  ASSERT_EQ(it, pht->end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
+TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Remove){
   std::hash<int> h;
-  auto cht = new <int, char>(h);
+  auto pht = new ProbingHashTable<int, char>(h);
   char a = 'a';
-  cht->insert(1, a);
-  cht->insert(2, a);
+  pht->insert(1, a);
+  pht->insert(2, a);
 
-  auto it = cht->begin();
-  ASSERT_NE(it, cht->end());
-  ASSERT_TRUE(cht->del(1));
-  ASSERT_EQ(it, cht->end());
+  auto it = pht->begin();
+  ASSERT_NE(it, pht->end());
+  pht->del(1);
+  ASSERT_EQ(it, pht->end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Fail_to_remove){
+TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Fail_to_remove){
   std::hash<int> h;
-  auto cht = new <int, char>(h);
+  auto pht = new ProbingHashTable<int, char>(h);
   char a = 'a';
-  cht->insert(1, a);
-  cht->insert(2, a);
+  pht->insert(1, a);
+  pht->insert(2, a);
 
-  auto it = cht->begin();
-  ASSERT_NE(it, cht->end());
-  ASSERT_FALSE(cht->del(5));
-  ASSERT_NE(it, cht->end());
+  auto it = pht->begin();
+  ASSERT_NE(it, pht->end());
+  ASSERT_FALSE(pht->del(5));
+  ASSERT_NE(it, pht->end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
+TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Delete){
   std::hash<int> h;
   int m = 17;
-  auto cht = new <int, char>(h, 0.5, m);
+  auto pht = new ProbingHashTable<int, char>(h, 0.5, m);
   char a = 'a';
-  cht->insert(1, a);
+  pht->insert(1, a);
 
-  auto it = cht->begin();
-  ASSERT_NE(it, cht->end());
+  auto it = pht->begin();
+  ASSERT_NE(it, pht->end());
   auto value = std::pair<int, char>(1,a);
   ASSERT_EQ(*it, value);
 
-  delete cht;
+  delete pht;
   try{
     value = *it;
     ASSERT_TRUE(false);
@@ -213,4 +211,3 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
     ASSERT_TRUE(true);
   }
 }
-*/
