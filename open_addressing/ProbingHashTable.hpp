@@ -30,10 +30,10 @@ public:
   ProbingHashTable() = delete;
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
-  bool insert(const Key, const Value&, Value** = nullptr);
+  bool insert(const Key, const Value&, Value * = nullptr);
   bool del(const Key, Value** = nullptr);
   iterator_value search(const Key);
-//  Value* search(const Key);
+  //  Value* search(const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
@@ -120,7 +120,7 @@ private:
 
   bool _insert(Table* table, long int* m, long int* n,
                const Key key, const Value& value,
-               Value** output = nullptr){
+               Value* output = nullptr){
     for(long int _i = 0; _i < *m; _i++){
         auto index = pm(_i, *m, h(key));
         if(table[index] == nullptr || table[index] == deleted){
@@ -130,16 +130,19 @@ private:
             updateVersion();
             return false;
           }else if(table[index]->first == key){
-          if(output != nullptr){
-            if(*output)
-                delete *output;
-            *output = new Value(table[index]->second);
+            if(output != nullptr){
+//                output = new Value(table[index]->second);
+                *output = table[index]->second;
+              }
+//            if(output != nullptr){
+//                if(*output != nullptr)
+//                  delete *output;
+//                *output = new Value(table[index]->second);
+//              }
+            table[index]->second = value;
+            updateVersion();
+            return true;
           }
-          delete table[index];
-          table[index] = new Pair(key, value);
-          updateVersion();
-          return true;
-        }
       }
     throw std::logic_error("Rehashing should have occurred.");
   }
@@ -150,7 +153,7 @@ private:
         int index = pm(_i, *m, h(key));
         if(table[index] && table[index] != deleted && table[index]->first == key){
             if(output != nullptr){
-              *output = new Value(std::move(table[index]->second));
+                *output = new Value(std::move(table[index]->second));
               }
             delete table[index];
             table[index] = deleted;
@@ -244,7 +247,7 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
 }
 
 template<typename Key, typename Value, typename Method>
-bool ProbingHashTable<Key, Value, Method>::insert(const Key key, const Value &value, Value** output){
+bool ProbingHashTable<Key, Value, Method>::insert(const Key key, const Value &value, Value* output){
   if(loadFactor() > upperLF && !to_table){
       _enlargeTable();
     }
@@ -265,7 +268,7 @@ bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value** output){
       _rehash(rehashThreshold());
     }
   return _del(from_table, &from_m, &from_n, key, output) ||
-          (to_table && _del(to_table, &to_m, &to_n, key, output));
+      (to_table && _del(to_table, &to_m, &to_n, key, output));
 }
 
 template<typename Key, typename Value, typename Method>
@@ -288,7 +291,7 @@ ProbingHashTable<Key, Value, Method>::search(const Key key){
           return it;
         }
     }
-    return end_value();
+  return end_value();
 }
 
 #endif // CHAININGHASHTABLE_HPP
