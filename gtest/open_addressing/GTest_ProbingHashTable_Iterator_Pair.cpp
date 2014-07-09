@@ -43,16 +43,15 @@ TEST_F(GTest_ProbingHashTable_Iterator_Pair, Iterate_over_table_Forward_order_Wi
   std::hash<int> h;
   int m = 17;
   table = new ProbingHashTable<int, char>(h, 0.5, m);
-  char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
-  table->insert(m+1,a);
+  table->insert(0,'a'); table->insert(2,'b'); table->insert(3,'c');
+  table->insert(m+1,'d');
 
   int result = 0;
   for(auto it = table->begin(); it != table->end(); it++){
     ProbingHashTable<int, char, DivisionMethod>::Pair& current = *it;
     result += current.first;
     }
-  ASSERT_EQ(6+(m+1), result);
+  ASSERT_EQ(5+(m+1), result);
 }
 
 TEST_F(GTest_ProbingHashTable_Iterator_Pair, Iterate_over_table_Iterator_explicit_position) {

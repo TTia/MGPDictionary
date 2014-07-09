@@ -126,8 +126,7 @@ private:
   Hash h;
   Method hm;
   Table *from_table, *to_table;
-
-    std::shared_ptr<long int> version;
+  std::shared_ptr<long int> version;
 
   inline void updateVersion(){
     *version = *version + 1l;
@@ -191,7 +190,7 @@ private:
   }
   void _rehash(int k){
     int r = 0;
-    for(int i = 0; i < from_m && r < k && from_n > 0; i++){
+    for(long int i = 0; i < from_m && r < k && from_n > 0; i++){
         while(from_table[i] && r < k && from_table[i]->size() > 0){
             auto pair = from_table[i]->at(0);
             _insert(to_table, &to_m, &to_n, pair.first, pair.second);
@@ -218,8 +217,8 @@ private:
       }
     to_m = m;
   }
-  void _dealloc(Table* table, long int* m/*, long int* n*/){
-    for(int i = 0; table && i<*m; i++){
+  void _dealloc(Table* table, long int* m/*, long ints int* n*/){
+    for(long int i = 0; table && i<*m; i++){
         if(table[i]){
             table[i]->clear();
             delete table[i];
@@ -243,7 +242,7 @@ ChainingHashTable<Key, Value, Method>::ChainingHashTable(Hash h, double loadFact
     }
 
   from_table = new Table[m];
-  for(int i = 0; i<m; i++){
+  for(long int i = 0; i<m; i++){
       from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
@@ -280,14 +279,15 @@ ChainingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
     }
-  int i = hm(from_m, h(key));
-  if(from_table[i] == nullptr){
+  long int i = hm(from_m, h(key));
+  if(!from_table[i]){
       return this->end_value();
     }
   for(size_t j = 0; j != from_table[i]->size(); j++) {
       if(from_table[i]->at(j).first == key){
-          auto it = new iterator_value(this, i, j);
-          return *it;
+          //auto it = new iterator_value(this, i, j);
+          iterator_value it(this, i, j);
+          return it;
         }
     }
   return this->end_value();

@@ -26,7 +26,7 @@ public:
   friend class PHTBidirectionalIterator_Value<Key, Value, Method>;
 
   PHTBidirectionalIterator() = delete;
-  PHTBidirectionalIterator(ProbingHashTable<Key, Value, Method>* htable, int i):
+  PHTBidirectionalIterator(ProbingHashTable<Key, Value, Method>* htable, long int i):
     table{htable->from_table}, deleted{htable->deleted}, m{htable->from_m}, i{i}, version{htable->version}, originalVersion{*htable->version}
   {
     if(!isValid() || !checkBoundaries() || !table[i] || table[i] == deleted){
@@ -49,7 +49,8 @@ private:
   typename ProbingHashTable<Key, Value, Method>::Table* table;
   const typename ProbingHashTable<Key, Value, Method>::Pair* deleted;
 
-  long int m, i;
+  long int m;
+  long int i;
   std::shared_ptr<long int> version;
   long int originalVersion;
 
@@ -125,32 +126,32 @@ class PHTBidirectionalIterator_Key:
                                   Key&,
                                   std::bidirectional_iterator_tag> {
 private:
-  PHTBidirectionalIterator<Key, Value, Method>* it;
+  PHTBidirectionalIterator<Key, Value, Method> it;
 
   void increment() {
-    this->it->increment();
+    this->it.increment();
   }
 
   void decrement() {
-    this->it->decrement();
+    this->itdecrement();
   }
 
   bool equal(PHTBidirectionalIterator_Key const& other) const
   {
-    return this->it->equal(*other.it);
+    return this->it.equal(other.it);
   }
 
   Key& dereference() const {
-    return this->it->dereference().first;
+    return this->it.dereference().first;
   }
 public:
   friend class boost::iterator_core_access;
 
-  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, Method>* htable, int i):
-  it{new PHTBidirectionalIterator<Key, Value, Method>(htable, i)}{}
+  PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, Method>* htable, long int i):
+  it{htable, i}{}
 
   PHTBidirectionalIterator_Key(ProbingHashTable<Key, Value, Method>* htable):
-  it{new PHTBidirectionalIterator<Key, Value, Method>(htable)}{}
+  it{htable}{}
 };
 
 template <typename Key, typename Value, typename Method = LinearProbing>
@@ -159,33 +160,33 @@ class PHTBidirectionalIterator_Value:
                                   Value&,
                                   std::bidirectional_iterator_tag> {
 private:
-  PHTBidirectionalIterator<Key, Value, Method>* it;
+  PHTBidirectionalIterator<Key, Value, Method> it;
 
   void increment() {
-    this->it->increment();
+    this->it.increment();
   }
 
   void decrement() {
-    this->it->decrement();
+    this->it.decrement();
   }
 
   bool equal(PHTBidirectionalIterator_Value const& other) const
   {
-    return this->it->equal(*other.it);
+    return this->it.equal(other.it);
   }
 
   Value& dereference() const {
-    return this->it->dereference().second;
+    return this->it.dereference().second;
   }
 
 public:
   friend class boost::iterator_core_access;
 
-  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, Method>* htable, int i):
-  it{new PHTBidirectionalIterator<Key, Value, Method>(htable, i)}{}
+  PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, Method>* htable, long int i):
+  it{htable, i}{}
 
   PHTBidirectionalIterator_Value(ProbingHashTable<Key, Value, Method>* htable):
-  it{new PHTBidirectionalIterator<Key, Value, Method>(htable)}{}
+  it{htable}{}
 };
 
 #endif

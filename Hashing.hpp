@@ -6,23 +6,24 @@
 
 class HashingMethod{
 public:
-  virtual unsigned long hash(const unsigned long m, const unsigned long k) const = 0;
-  unsigned long operator()(const unsigned long m, const unsigned long k) const{
+  virtual long int hash(const long int m, const long int k) const = 0;
+  long int operator()(const long int m, const long int k) const{
     return this->hash(m,k);
   }
+  virtual ~HashingMethod(){}
 };
 
 class DivisionMethod: public HashingMethod{
 public:
-  inline unsigned long hash(unsigned long m, unsigned long k) const{
-    return k % m;
+  inline long int hash(long int m, long int k) const{
+    return std::abs(k % m);
   }
 };
 
 class KnuthDivisionMethod: public HashingMethod{
 public:
-  inline unsigned long hash(unsigned long m, unsigned long k) const{
-    return (k*(k+3))%m;
+  inline long int hash(long int m, long int k) const{
+    return std::abs((k*(k+3))%m);
   }
 };
 
@@ -32,24 +33,24 @@ private:
 public:
   MultiplicationMethod() : a{double(rand())/RAND_MAX}{
   }
-  inline unsigned long hash(unsigned long m, unsigned long k) const{
+  inline long int hash(long int m, long int k) const{
     //w = k in bits, r = m in bits
     int w = !k ? 1 : log2(k), r = !m ? 1 : log2(m);
     //A in [2^(w-1), 2^w]
-    unsigned long long A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
-    return ((A*k)% int(pow(2, w))) >> (w-r);
+    long int long A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
+    return std::abs(((A*k)% int(pow(2, w))) >> (w-r));
   }
 };
 
 class UniversalMethod: public HashingMethod{
 private:
-  static const unsigned long PRETTY_BIG_PRIME_NUMBER = 104729;
-  unsigned long p, a, b;
+  static const long int PRETTY_BIG_PRIME_NUMBER = 104729;
+  long int p, a, b;
 public:
   UniversalMethod(): p{PRETTY_BIG_PRIME_NUMBER}, a(double(rand())/RAND_MAX*p), b(double(rand())/RAND_MAX*p){
   }
-  inline unsigned long hash(unsigned long m, unsigned long k) const{
-    return ((a*k+b)%p)%m;
+  inline long int hash(long int m, long int k) const{
+    return std::abs(((a*k+b)%p)%m);
   }
 };
 

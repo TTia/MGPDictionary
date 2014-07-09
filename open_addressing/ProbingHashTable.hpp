@@ -55,11 +55,15 @@ public:
     if(to_table){
         _rehash(from_n);
       }
-    return *new iterator(this);
+    iterator it(this);
+    return it;
+//    return *new iterator(this);
   }
 
   inline iterator end(){
-    return *new iterator(this, -1);
+    iterator it(this, -1);
+    return it;
+//    return *new iterator(this, -1);
   }
 
   inline iterator_key begin_key(){
@@ -69,11 +73,15 @@ public:
     if(to_table){
         _rehash(from_n);
       }
-    return *new iterator_key(this);
+    iterator_key it(this);
+    return it;
+//    return *new iterator_key(this);
   }
 
   inline iterator_key end_key(){
-    return *new iterator_key(this, -1);
+    iterator_key it(this, -1);
+    return it;
+//    return *new iterator_key(this, -1);
   }
 
   inline iterator_value begin_value(){
@@ -83,17 +91,21 @@ public:
     if(to_table){
         _rehash(from_n);
       }
-    return *new iterator_value(this);
+    iterator_value it(this);
+    return it;
+//    return *new iterator_value(this);
   }
 
   inline iterator_value end_value(){
-    return *new iterator_value(this, -1);
+    iterator_value it(this, -1);
+    return it;
+//    return *new iterator_value(this, -1);
   }
 
   ~ProbingHashTable(){
     updateVersion();
-    _dealloc(from_table, &from_m, &from_n);
-    _dealloc(to_table, &to_m, &to_n);
+    _dealloc(from_table, &from_m/*, &from_n*/);
+    _dealloc(to_table, &to_m/*, &to_n*/);
   }
 
 private:
@@ -115,9 +127,10 @@ private:
                const Key key, const Value& value,
                Value** output = nullptr){
     for(long int _i = 0; _i < *m; _i++){
-        int index = pm(_i, *m, h(key));
+        auto index = pm(_i, *m, h(key));
         if(!table[index] || table[index] == deleted){
-          auto pair = new Pair(key, value);
+//          Pair pair{key, value};
+          Pair* pair = new std::pair<Key, Value>(key, value);
           table[index] = pair;
           (*n)++;
           updateVersion();
@@ -125,7 +138,8 @@ private:
         }else if(table[index]->first == key){
           if(output)
             *output = new Value(std::move(table[index]->second));
-          auto pair = new Pair(key, value);
+          //Pair pair{key, value};
+          Pair* pair = new std::pair<Key, Value>(key, value);
           table[index] = pair;
           updateVersion();
           return true;
@@ -136,7 +150,7 @@ private:
 
   bool _del(Table* table,
             long int* m, long int* n, const Key key, Value** output){
-    for(int _i = 0; _i<*m; _i++){
+    for(long int _i = 0; _i<*m; _i++){
         int index = pm(_i, *m, h(key));
         if(table[index] && table[index] != deleted && table[index]->first == key){
             if(output)
@@ -165,7 +179,7 @@ private:
   }
   void _rehash(int k){
     int r = 0;
-    for(int i = 0; i < from_m && r < k && from_n > 0; i++){
+    for(long int i = 0; i < from_m && r < k && from_n > 0; i++){
         if(!from_table[i]){
             continue;
           }
@@ -181,9 +195,16 @@ private:
         r++;
       }
     if(!from_n){
+//        from_m = to_m;
+//        from_n = to_n;
+//        _dealloc(from_table, &to_m, &to_n);
+//        from_table = to_table;
+//        to_table = nullptr;
+        _dealloc(from_table, &from_m/*, &from_n*/);
         from_m = to_m;
         from_n = to_n;
-        _dealloc(from_table, &to_m, &to_n);
+        to_m = 0;
+        to_n = 0;
         from_table = to_table;
         to_table = nullptr;
       }
@@ -195,16 +216,16 @@ private:
       }
     to_m = m;
   }
-  void _dealloc(Table* table, long int* m, long int* n){
-    for(int i = 0; table && i<*m; i++){
-        if(!table[i]){
+  void _dealloc(Table* table, long int* m/*, long int* n*/){
+    for(long int i = 0; table && i<*m; i++){
+        if(table[i] != nullptr){
             delete table[i];
           }
       }
     delete [] table;
     table = nullptr;
-    *m = 0;
-    *n = 0;
+//    *m = 0;
+//    *n = 0;
   }
 
 };
@@ -213,14 +234,13 @@ template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr} {
+  from_table{nullptr}, to_table{nullptr}, deleted{}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
 
-  deleted = new Pair();
   from_table = new Table[from_m];
-  for(int i = 0; i<from_m; i++){
+  for(long int i = 0; i<from_m; i++){
       from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
@@ -258,19 +278,19 @@ ProbingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
     }
-  for(int _i = 0; _i < from_m; _i++){
-      int index = pm(_i, from_m, h(key));
+  for(long int _i = 0; _i < from_m; _i++){
+      long int index = pm(_i, from_m, h(key));
       if(!from_table[index]){
-//          return nullptr;
           return end_value();
         }
+      if(from_table[index] == deleted){
+          continue;
+        }
       if(from_table[index]->first == key){
-//          return &from_table[index]->second;
-          auto it = new iterator_value(this, index);
-          return *it;
+          iterator_value it(this, index);
+          return it;
         }
     }
-//  return nullptr;
     return end_value();
 }
 

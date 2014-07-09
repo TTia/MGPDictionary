@@ -19,6 +19,7 @@ protected:
   }
 
 };
+
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterator_over_empty_table) {
   std::hash<int> h;
   table = new ProbingHashTable<int, char>(h);

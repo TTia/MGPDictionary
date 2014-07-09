@@ -15,9 +15,9 @@ protected:
 
 TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_DivisionMethod) {
   DivisionMethod method;
-  for(unsigned long long m = 1; m < 100; m++)
-    for(int k = 0; k < 8388608; k++){
-        unsigned long long i = method(m,k);
+  for(long int m = 1; m < 100; m++)
+    for(long int k = 0; k < 8388608; k++){
+        long int i = method(m,k);
         ASSERT_EQ(i, method(m,k));
         ASSERT_TRUE(i >= 0 && i < m);
     }
@@ -25,9 +25,9 @@ TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_DivisionMethod) {
 
 TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_KnuthDivisionMethod) {
   KnuthDivisionMethod method;
-  for(unsigned long long m = 1; m < 100; m++)
-    for(int k = 0; k < 8388608; k++){
-      unsigned long long i = method(m,k);
+  for(long int m = 1; m < 100; m++)
+    for(long int k = 0; k < 8388608; k++){
+      long int i = method(m,k);
       ASSERT_EQ(i, method(m,k));
       ASSERT_TRUE(i >= 0 && i < m);
   }
@@ -36,16 +36,16 @@ TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_KnuthDivisionMethod) {
 TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_MultiplicationMethod) {
   MultiplicationMethod method;
   for(int m = 1; m < 10; m++)
-    for(int k = 0; k < 8388608; k++){
+    for(long int k = 0; k < 8388608; k++){
       ASSERT_EQ(method(m,k), method(m,k));
   }
 }
 
 TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_UniversalMethod) {
   UniversalMethod method;
-  for(unsigned long long m = 1; m < 100; m++)
-    for(int k = 0; k < 8388608; k++){
-        unsigned long long i = method(m,k);
+  for(long int m = 1; m < 100; m++)
+    for(long int k = 0; k < 8388608; k++){
+        long int i = method(m,k);
         ASSERT_EQ(i, method(m,k));
         ASSERT_TRUE(i >= 0 && i < m);
     }

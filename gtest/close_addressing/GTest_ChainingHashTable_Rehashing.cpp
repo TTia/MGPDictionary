@@ -66,6 +66,6 @@ TEST_F(GTest_ChainingHashTable_Rehashing, Search_causes_complete_rehashing) {
       cht->insert(i, 'a');
     }
   ASSERT_EQ(10.0/32, cht->loadFactor());
-  cht->search(-1);
+  cht->search(1);
   ASSERT_EQ(10.0/32, cht->loadFactor());
 }

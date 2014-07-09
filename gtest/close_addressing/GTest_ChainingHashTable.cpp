@@ -22,7 +22,7 @@ TEST_F(GTest_ChainingHashTable, Constructor) {
   EXPECT_EQ(cht->loadFactor(), 0);
 }
 
-TEST_F(GTest_ChainingHashTable, coutnstructor_illegal_parameters) {
+TEST_F(GTest_ChainingHashTable, Constructor_illegal_parameters) {
   std::hash<int> h;
   try{
     cht = new ChainingHashTable<int, char>(h, 1.2, -1);
