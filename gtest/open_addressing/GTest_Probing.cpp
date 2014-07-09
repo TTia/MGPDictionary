@@ -2,14 +2,6 @@
 #include "open_addressing/Probing.hpp"
 
 class GTest_Probing : public ::testing::Test {
-//class DISABLED_GTest_Probing : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-  }
-
-  virtual void TearDown() {
-  }
-
 };
 
 TEST_F(GTest_Probing, DISABLED_Deterministic_Linear_Probing) {

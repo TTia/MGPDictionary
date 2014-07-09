@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Iterator_Key.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Iterator_Value.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Iterator_Key.cpp \
-    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Value.cpp
+    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Value.cpp \
+    gtest/GTest_Spike.cpp
 
 HEADERS += \
     Hashing.hpp \
@@ -30,7 +31,6 @@ HEADERS += \
     close_addressing/ChainingHashTableIterator.hpp \
     open_addressing/ProbingHashTable.hpp \
     open_addressing/Probing.hpp \
-    open_addressing/ProbingExceptions.hpp \
     open_addressing/ProbingHashTableIterator.hpp
 
 OTHER_FILES += \

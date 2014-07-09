@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*!
- * \brief The Hashing class
- * Data l'impronta hash della chiave e la dimensione della tabella, viene calcolata
- * la normalizzazione.
- */
 class HashingMethod{
 public:
   virtual unsigned long hash(const unsigned long m, const unsigned long k) const = 0;

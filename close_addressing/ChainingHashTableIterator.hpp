@@ -2,32 +2,32 @@
 #define CHAININGHASHTABLEITERATOR_HPP
 
 #include "../Hashing.hpp"
-#include "ChainingHashTable.hpp"
+//#include "ChainingHashTable.hpp"
+
 #include <memory>
 #include <iterator>
 #include <boost/iterator/iterator_facade.hpp>
 #include <stdexcept>
 
-template<typename Key, typename Value, typename HashingMethod>
+template<typename Key, typename Value, typename Method>
 class ChainingHashTable;
-
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 class CHTBidirectionalIterator_Key;
-template<typename Key, typename Value, typename ProbingMethod>
+template<typename Key, typename Value, typename Method>
 class CHTBidirectionalIterator_Value;
 
-template <typename Key, typename Value, typename HashingMethod = DivisionMethod>
+template <typename Key, typename Value, typename Method = DivisionMethod>
 class CHTBidirectionalIterator:
-    public boost::iterator_facade<CHTBidirectionalIterator<Key, Value, HashingMethod>,
-                                  typename ChainingHashTable<Key, Value, HashingMethod>::Pair&,
+    public boost::iterator_facade<CHTBidirectionalIterator<Key, Value, Method>,
+                                  typename ChainingHashTable<Key, Value, Method>::Pair&,
                                   std::bidirectional_iterator_tag> {
 public:
   friend class boost::iterator_core_access;
-  friend class CHTBidirectionalIterator_Key<Key, Value, HashingMethod>;
-  friend class CHTBidirectionalIterator_Value<Key, Value, HashingMethod>;
+  friend class CHTBidirectionalIterator_Key<Key, Value, Method>;
+  friend class CHTBidirectionalIterator_Value<Key, Value, Method>;
 
   CHTBidirectionalIterator() = delete;
-  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
+  CHTBidirectionalIterator(ChainingHashTable<Key, Value, Method>* htable, int i, size_t j = 0):
     table{htable->from_table}, m{htable->from_m}, i{i}, j(j), version{htable->version}, originalVersion{*htable->version}
   {
     validate();
@@ -37,14 +37,17 @@ public:
       }
   }
 
-  CHTBidirectionalIterator(ChainingHashTable<Key, Value, HashingMethod>* htable):
+  CHTBidirectionalIterator(ChainingHashTable<Key, Value, Method>* htable):
     table{htable->from_table}, m{htable->from_m}, i{0}, j(0), version{htable->version}, originalVersion{*htable->version}
   {
     validate();
     this->_searchNextChain();
   }
+
+  ~CHTBidirectionalIterator(){
+  }
 private:
-  typename ChainingHashTable<Key, Value, HashingMethod>::Table* table;
+  typename ChainingHashTable<Key, Value, Method>::Table* table;
   long int m, i;
   size_t j;
   std::shared_ptr<long int> version;
@@ -128,7 +131,7 @@ private:
     return table == other.table && i == other.i && j == other.j;
   }
 
-  typename ChainingHashTable<Key, Value, HashingMethod>::Pair& dereference() const {
+  typename ChainingHashTable<Key, Value, Method>::Pair& dereference() const {
     if(!isValid()){
         throw std::logic_error("Invalid iterator.");
       }else if(isEnd()){
@@ -140,13 +143,13 @@ private:
   }
 };
 
-template <typename Key, typename Value, typename HashingMethod = DivisionMethod>
+template <typename Key, typename Value, typename Method = DivisionMethod>
 class CHTBidirectionalIterator_Key:
-    public boost::iterator_facade<CHTBidirectionalIterator_Key<Key, Value, HashingMethod>,
+    public boost::iterator_facade<CHTBidirectionalIterator_Key<Key, Value, Method>,
                                   Key&,
                                   std::bidirectional_iterator_tag> {
 private:
-  CHTBidirectionalIterator<Key, Value, HashingMethod>* it;
+  CHTBidirectionalIterator<Key, Value, Method>* it;
 
   void increment() {
     this->it->increment();
@@ -167,20 +170,20 @@ private:
 public:
   friend class boost::iterator_core_access;
 
-  CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}
+  CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, Method>* htable, int i, size_t j = 0):
+  it{new CHTBidirectionalIterator<Key, Value, Method>(htable, i, j)}{}
 
-  CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, HashingMethod>* htable):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable)}{}
+  CHTBidirectionalIterator_Key(ChainingHashTable<Key, Value, Method>* htable):
+  it{new CHTBidirectionalIterator<Key, Value, Method>(htable)}{}
 };
 
-template <typename Key, typename Value, typename HashingMethod = DivisionMethod>
+template <typename Key, typename Value, typename Method = DivisionMethod>
 class CHTBidirectionalIterator_Value:
-    public boost::iterator_facade<CHTBidirectionalIterator_Value<Key, Value, HashingMethod>,
+    public boost::iterator_facade<CHTBidirectionalIterator_Value<Key, Value, Method>,
                                   Value&,
                                   std::bidirectional_iterator_tag> {
 private:
-  CHTBidirectionalIterator<Key, Value, HashingMethod>* it;
+  CHTBidirectionalIterator<Key, Value, Method>* it;
 
   void increment() {
     this->it->increment();
@@ -202,11 +205,11 @@ private:
 public:
   friend class boost::iterator_core_access;
 
-  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, HashingMethod>* htable, int i, size_t j = 0):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable, i, j)}{}
+  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, Method>* htable, int i, size_t j = 0):
+  it{new CHTBidirectionalIterator<Key, Value, Method>(htable, i, j)}{}
 
-  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, HashingMethod>* htable):
-  it{new CHTBidirectionalIterator<Key, Value, HashingMethod>(htable)}{}
+  CHTBidirectionalIterator_Value(ChainingHashTable<Key, Value, Method>* htable):
+  it{new CHTBidirectionalIterator<Key, Value, Method>(htable)}{}
 };
 
 #endif

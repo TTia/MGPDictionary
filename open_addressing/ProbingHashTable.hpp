@@ -2,17 +2,18 @@
 #define CHAININGHASHTABLE_HPP
 
 #include "ProbingHashTableIterator.hpp"
+#include "Probing.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <memory>
 
-template <typename Key, typename Value, typename Method>
-class PHTBidirectionalIterator;
-template<typename Key, typename Value, typename Method>
-class PHTBidirectionalIterator_Key;
-template<typename Key, typename Value, typename Method>
-class PHTBidirectionalIterator_Value;
+//template <typename Key, typename Value, typename Method>
+//class PHTBidirectionalIterator;
+//template<typename Key, typename Value, typename Method>
+//class PHTBidirectionalIterator_Key;
+//template<typename Key, typename Value, typename Method>
+//class PHTBidirectionalIterator_Value;
 
 template<typename Key, typename Value, typename Method = LinearProbing>
 class ProbingHashTable{

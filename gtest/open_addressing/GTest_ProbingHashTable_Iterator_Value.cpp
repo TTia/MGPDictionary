@@ -8,16 +8,20 @@
 
 class GTest_ProbingHashTable_Iterator_Values : public ::testing::Test {
 protected:
+  ProbingHashTable<int, char> *table;
   virtual void SetUp() {
+    table = nullptr;
   }
 
   virtual void TearDown() {
+    if(table)
+      delete table;
   }
 
 };
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterator_over_empty_table) {
   std::hash<int> h;
-  auto table = new ProbingHashTable<int, char>(h);
+  table = new ProbingHashTable<int, char>(h);
 
   for(auto it = table->begin_value(); it != table->end_value(); it++){
         ASSERT_TRUE(false);
@@ -28,7 +32,7 @@ TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterator_over_empty_table) {
 
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Forward_order) {
   std::hash<int> h;
-  auto table = new ProbingHashTable<int, char>(h);
+  table = new ProbingHashTable<int, char>(h);
   char a = 'a', b = 'b', c = 'c', result[4] = "";
   int i = 0;
   table->insert(1,a); table->insert(2,b); table->insert(3,c);
@@ -43,7 +47,7 @@ TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Forward_order)
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;
-  auto table = new ProbingHashTable<int, char>(h, 0.5, m);
+  table = new ProbingHashTable<int, char>(h, 0.5, m);
   char a = 'a', b = 'b', c = 'c', d = 'd', result[5] = "";
   int i = 0;
   table->insert(1,a); table->insert(2,b); table->insert(3,c);
@@ -59,7 +63,7 @@ TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Forward_order_
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Iterator_explicit_position) {
   std::hash<int> h;
   int m = 17;
-  auto table = new ProbingHashTable<int, char>(h, 0.5, m);
+  table = new ProbingHashTable<int, char>(h, 0.5, m);
   char a = 'a', b = 'b', c = 'c';
   table->insert(1,a); table->insert(m+1,b); table->insert(16,c);
   auto it_1 = new PHTBidirectionalIterator_Value<int, char>(table, 1);
@@ -81,7 +85,7 @@ TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Iterator_expli
 
 TEST_F(GTest_ProbingHashTable_Iterator_Values, Iterate_over_table_Operator_elision) {
   std::hash<int> h;
-  auto table = new ProbingHashTable<int, char>(h);
+  table = new ProbingHashTable<int, char>(h);
   char a = 'a';
   table->insert(1,a); table->insert(2,a); table->insert(3,a);
   auto it = table->begin_value();

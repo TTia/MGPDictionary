@@ -3,16 +3,20 @@
 
 class GTest_ProbingHashTable_Rehashing : public ::testing::Test {
 protected:
+  ProbingHashTable<int, char> *pht;
   virtual void SetUp() {
+    pht = nullptr;
   }
 
   virtual void TearDown() {
+    if(pht)
+      delete pht;
   }
 };
-/*
+
 TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_1_Time) {
   std::hash<int> h;
-  auto pht = new ProbingHashTable<int, char>(h, .5, 16);
+  pht = new ProbingHashTable<int, char>(h, .5, 16);
   ASSERT_EQ(0, pht->loadFactor());
   for(int i = 0; i<7; i++){
       pht->insert(i, 'a');
@@ -29,7 +33,7 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_1_Time) {
 
 TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times) {
   std::hash<int> h;
-  auto pht = new ProbingHashTable<int, char>(h, .5, 16);
+  pht = new ProbingHashTable<int, char>(h, .5, 16);
   ASSERT_EQ(0, pht->loadFactor());
   for(int i = 0; i<65; i++){
       pht->insert(i, 'a');
@@ -41,7 +45,7 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times) {
 
 TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
   std::hash<int> h;
-  auto pht = new ProbingHashTable<int, char>(h, .5, 16);
+  pht = new ProbingHashTable<int, char>(h, .5, 16);
   ASSERT_EQ(0, pht->loadFactor());
   for(int i = 0; i<65; i++){
       pht->insert(i, 'a');
@@ -59,7 +63,7 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
 
 TEST_F(GTest_ProbingHashTable_Rehashing, Search_causes_complete_rehashing) {
   std::hash<int> h;
-  auto pht = new ProbingHashTable<int, char>(h, .5, 16);
+  pht = new ProbingHashTable<int, char>(h, .5, 16);
   for(int i = 0; i<10; i++){
       pht->insert(i, 'a');
     }
@@ -67,4 +71,3 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Search_causes_complete_rehashing) {
   pht->search(-1);
   ASSERT_EQ(10.0/32, pht->loadFactor());
 }
-*/
