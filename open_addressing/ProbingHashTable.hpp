@@ -136,6 +136,8 @@ private:
           return false;
         }else if(table[index]->first == key){
           if(output != nullptr){
+            if(*output)
+                delete *output;
             *output = new Value(table[index]->second);
           }
           delete table[index];
