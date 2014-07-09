@@ -4,114 +4,99 @@
 
 #include <stdexcept>
 
-class GTest_Iterator_Pair : public ::testing::Test {
-protected:
-  ChainingHashTable<int, char> *table;
-  virtual void SetUp() {
-    table = nullptr;
-  }
+class GTest_Iterator_Pair : public ::testing::Test {};
 
-  virtual void TearDown() {
-    if(table)
-      delete table;
-  }
-};
-
-TEST_F(GTest_Iterator_Pair, Iterator_over_empty_table) {
+TEST_F(GTest_Iterator_Pair, Iterator_over_empty_cht) {
   std::hash<int> h;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  ChainingHashTable<int, char> cht{h, .5};
 
-  for(auto it = table->begin(); it != table->end(); it++){
+  for(auto it = cht.begin(); it != cht.end(); it++){
         ASSERT_TRUE(false);
     }
   ASSERT_TRUE(true);
 }
 
-TEST_F(GTest_Iterator_Pair, Iterate_over_table_Forward_order) {
+TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Forward_order) {
   std::hash<int> h;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  ChainingHashTable<int, char> cht{h, .5};
   char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
+  cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
 
   int result = 0;
-  for(auto it = table->begin(); it != table->end(); it++){
-    const ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+  for(auto it = cht.begin(); it != cht.end(); it++){
+    const ChainingHashTable<int, char>::Pair& current = *it;
     result += current.first;
     }
   ASSERT_EQ(6, result);
 }
 
-TEST_F(GTest_Iterator_Pair, Iterate_over_table_Forward_order_Chain) {
+TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
+  ChainingHashTable<int, char> cht{h, .5};
   char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
-  table->insert(m+1,a);
+  cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
+  cht.insert(m+1,a);
 
   int result = 0;
-  for(auto it = table->begin(); it != table->end(); it++){
-    ChainingHashTable<int, char, DivisionMethod>::Pair& current = *it;
+  for(auto it = cht.begin(); it != cht.end(); it++){
+    ChainingHashTable<int, char>::Pair& current = *it;
     result += current.first;
     }
   ASSERT_EQ(6+(m+1), result);
 }
 
-TEST_F(GTest_Iterator_Pair, Iterate_over_table_Iterator_explicit_position) {
+TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Iterator_explicit_position) {
   std::hash<int> h;
   int m = 17;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h, 0.5, m);
+  ChainingHashTable<int, char> cht{h, .5};
   char a = 'a';
-  table->insert(1,a); table->insert(m+1,a); table->insert(16,a);
-  auto it_1 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 1, 0);
-  auto it_2 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 1, 1);
-  auto it_3 = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 16, 0);
-  auto it_err = new CHTBidirectionalIterator<int, char, DivisionMethod>(table, 2, 0);
+  cht.insert(1,a); cht.insert(m+1,a); cht.insert(16,a);
+  CHTBidirectionalIterator<int, char> it_1(&cht, 1, 0);
+  CHTBidirectionalIterator<int, char> it_2(&cht, 1, 1);
+  CHTBidirectionalIterator<int, char> it_3(&cht, 16, 0);
+  CHTBidirectionalIterator<int, char> it_err(&cht, 2, 0);
 
-  ChainingHashTable<int, char, DivisionMethod>::Pair& pair = **it_1;
-  auto value = new std::pair<int, char>(1, a);
-  ASSERT_EQ(*value, pair);
+  ChainingHashTable<int, char>::Pair& pair = *it_1;
+  std::pair<int, char> value(1, a);
+  ASSERT_EQ(value, pair);
 
-  value->first = m+1;
-  pair = **it_2;
-  ASSERT_EQ(*value, pair);
+  value.first = m+1;
+  pair = *it_2;
+  ASSERT_EQ(value, pair);
 
-  value->first = 16;
-  pair = **it_3;
-  ASSERT_EQ(*value, pair);
+  value.first = 16;
+  pair = *it_3;
+  ASSERT_EQ(value, pair);
 
-  ASSERT_EQ(*it_err, table->end());
-  delete it_1;
-  delete it_2;
-  delete it_3;
-  delete it_err;
+  ASSERT_EQ(it_err, cht.end());
 }
 
-TEST_F(GTest_Iterator_Pair, Iterate_over_table_Operator_elision) {
+TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Operator_elision) {
   std::hash<int> h;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h);
+  ChainingHashTable<int, char> cht{h};
   char a = 'a';
-  table->insert(1,a); table->insert(2,a); table->insert(3,a);
-  auto it = table->begin();
+  cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
+  auto it = cht.begin();
 
   it++; it--;
-  ASSERT_EQ(it, table->begin());
+  ASSERT_EQ(it, cht.begin());
   it++; it++; it--; it++; it--; it--;
-  ASSERT_EQ(it, table->begin());
+  ASSERT_EQ(it, cht.begin());
 }
 
 TEST_F(GTest_Iterator_Pair, Inferior_and_Superior_Boundaries_EQ_End) {
   std::hash<int> h;
-  table = new ChainingHashTable<int, char, DivisionMethod>(h);
-  table->insert(1, 'a');
-  auto it = table->begin(), it_2 = table->begin();
+  ChainingHashTable<int, char> cht{h};
+  cht.insert(1, 'a');
+  auto it = cht.begin(), it_2 = cht.begin();
 
-  ASSERT_NE(it, table->end());
-  ASSERT_NE(it_2, table->end());
+  ASSERT_NE(it, cht.end());
+  ASSERT_NE(it_2, cht.end());
 
   it--;
-  ASSERT_EQ(it, table->end());
+  ASSERT_EQ(it, cht.end());
 
   it_2++; it_2++;
-  ASSERT_EQ(it_2, table->end());
+  ASSERT_EQ(it_2, cht.end());
 }

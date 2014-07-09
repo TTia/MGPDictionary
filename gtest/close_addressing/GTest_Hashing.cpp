@@ -3,15 +3,7 @@
 
 #include <stdexcept>
 
-class GTest_Hashing : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-  }
-
-  virtual void TearDown() {
-  }
-
-};
+class GTest_Hashing : public ::testing::Test {};
 
 TEST_F(GTest_Hashing, DISABLED_Deterministic_Hashing_DivisionMethod) {
   DivisionMethod method;

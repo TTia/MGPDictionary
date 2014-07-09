@@ -106,6 +106,7 @@ public:
     updateVersion();
     _dealloc(from_table, &from_m/*, &from_n*/);
     _dealloc(to_table, &to_m/*, &to_n*/);
+    delete deleted;
   }
 
 private:
@@ -129,18 +130,15 @@ private:
     for(long int _i = 0; _i < *m; _i++){
         auto index = pm(_i, *m, h(key));
         if(!table[index] || table[index] == deleted){
-//          Pair pair{key, value};
-          Pair* pair = new std::pair<Key, Value>(key, value);
-          table[index] = pair;
+          table[index] = new Pair(key, value);;
           (*n)++;
           updateVersion();
           return false;
         }else if(table[index]->first == key){
           if(output)
             *output = new Value(std::move(table[index]->second));
-          //Pair pair{key, value};
-          Pair* pair = new std::pair<Key, Value>(key, value);
-          table[index] = pair;
+          delete table[index];
+          table[index] = new Pair(key, value);
           updateVersion();
           return true;
         }
@@ -155,6 +153,7 @@ private:
         if(table[index] && table[index] != deleted && table[index]->first == key){
             if(output)
               *output = new Value(std::move(table[index]->second));
+            delete table[index];
             table[index] = deleted;
             (*n)--;
             updateVersion();
@@ -172,11 +171,13 @@ private:
     to_n = 0;
     _alloca(to_m);
   }
+
   void _enlargeTable(){
     to_m = from_m * 2;
     to_n = 0;
     _alloca(to_m);
   }
+
   void _rehash(int k){
     int r = 0;
     for(long int i = 0; i < from_m && r < k && from_n > 0; i++){
@@ -195,12 +196,7 @@ private:
         r++;
       }
     if(!from_n){
-//        from_m = to_m;
-//        from_n = to_n;
-//        _dealloc(from_table, &to_m, &to_n);
-//        from_table = to_table;
-//        to_table = nullptr;
-        _dealloc(from_table, &from_m/*, &from_n*/);
+        _dealloc(from_table, &from_m);
         from_m = to_m;
         from_n = to_n;
         to_m = 0;
@@ -209,6 +205,7 @@ private:
         to_table = nullptr;
       }
   }
+
   void _alloca(int m){
     to_table = new Table[m];
     for(int i = 0; i<m; i++){
@@ -216,16 +213,15 @@ private:
       }
     to_m = m;
   }
+
   void _dealloc(Table* table, long int* m/*, long int* n*/){
     for(long int i = 0; table && i<*m; i++){
-        if(table[i] != nullptr){
+        if(table[i] != nullptr && table[i] != deleted){
             delete table[i];
           }
       }
     delete [] table;
     table = nullptr;
-//    *m = 0;
-//    *n = 0;
   }
 
 };
@@ -234,7 +230,7 @@ template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr}, deleted{}{
+  from_table{nullptr}, to_table{nullptr}, deleted{new Pair()}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
