@@ -130,13 +130,14 @@ private:
     for(long int _i = 0; _i < *m; _i++){
         auto index = pm(_i, *m, h(key));
         if(!table[index] || table[index] == deleted){
-          table[index] = new Pair(key, value);;
+          table[index] = new Pair(key, value);
           (*n)++;
           updateVersion();
           return false;
         }else if(table[index]->first == key){
-          if(output)
-            *output = new Value(std::move(table[index]->second));
+          if(output != nullptr){
+            *output = new Value(table[index]->second);
+          }
           delete table[index];
           table[index] = new Pair(key, value);
           updateVersion();
@@ -151,8 +152,9 @@ private:
     for(long int _i = 0; _i<*m; _i++){
         int index = pm(_i, *m, h(key));
         if(table[index] && table[index] != deleted && table[index]->first == key){
-            if(output)
+            if(output != nullptr){
               *output = new Value(std::move(table[index]->second));
+              }
             delete table[index];
             table[index] = deleted;
             (*n)--;
@@ -230,7 +232,8 @@ template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr}, deleted{new Pair()}{
+  from_table{nullptr}, to_table{nullptr}/*,
+  deleted{&Pair()}*/{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
@@ -240,6 +243,10 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
       from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
+
+//  Pair empty;
+//  deleted = &empty;
+  deleted = new Pair();
 }
 
 template<typename Key, typename Value, typename Method>

@@ -13,16 +13,16 @@ SOURCES += main.cpp \
     gtest/close_addressing/GTest_ChainingHashTable.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Rehashing.cpp \
     gtest/close_addressing/GTest_Hashing.cpp \
-    gtest/open_addressing/GTest_Probing.cpp \
-    gtest/open_addressing/GTest_ProbingHashTable.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Rehashing.cpp \
-    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Pair.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Iterator_Pair.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Iterator_Key.cpp \
     gtest/close_addressing/GTest_ChainingHashTable_Iterator_Value.cpp \
+    gtest/GTest_Spike.cpp \
+    gtest/open_addressing/GTest_ProbingHashTable.cpp \
+    gtest/open_addressing/GTest_Probing.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Iterator_Key.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Iterator_Value.cpp \
-    gtest/GTest_Spike.cpp
+    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Pair.cpp
 
 HEADERS += \
     Hashing.hpp \

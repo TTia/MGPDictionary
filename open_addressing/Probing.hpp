@@ -46,6 +46,9 @@ public:
     //h(k,i) = (h1(k) + i*(h2(k)))%m
     return (hash(m,k) + i*((*h2)(m,k)))%m;
   }
+  ~DoubleHashing(){
+    delete h2;
+  }
 private:
   HashingMethod* h2;
 };
