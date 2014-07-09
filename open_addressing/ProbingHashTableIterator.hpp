@@ -27,7 +27,8 @@ public:
 
   PHTBidirectionalIterator() = delete;
   PHTBidirectionalIterator(ProbingHashTable<Key, Value, Method>* htable, long int i):
-    table{htable->from_table}, deleted{htable->deleted}, m{htable->from_m}, i{i}, version{htable->version}, originalVersion{*htable->version}
+    table{htable->from_table}, deleted{htable->deleted}, m{htable->from_m},
+    i{i}, version{htable->version}, originalVersion{*htable->version}
   {
     if(!isValid() || !checkBoundaries() || !table[i] || table[i] == deleted){
         endIteration();

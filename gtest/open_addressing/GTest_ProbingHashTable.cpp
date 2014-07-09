@@ -35,13 +35,13 @@ TEST_F(GTest_ProbingHashTable, Insert_with_duplication) {
   std::hash<int> h;
   ProbingHashTable<int, char> pht(h);
   char a = 'a', b = 'b', c = 'c';
-//  char *output = new char;
+  char *output;
 
   ASSERT_FALSE(pht.insert(1,a));
   ASSERT_FALSE(pht.insert(2,c));
 
-//  ASSERT_TRUE(pht.insert(1,a, &output));
-//  ASSERT_EQ(*output, 'a');
+  ASSERT_TRUE(pht.insert(1,a, &output));
+  ASSERT_EQ(*output, 'a');
 
   ASSERT_TRUE(pht.insert(1,b));
   ASSERT_TRUE(pht.insert(1,a));

@@ -57,13 +57,11 @@ public:
       }
     iterator it(this);
     return it;
-//    return *new iterator(this);
   }
 
   inline iterator end(){
     iterator it(this, -1);
     return it;
-//    return *new iterator(this, -1);
   }
 
   inline iterator_key begin_key(){
@@ -75,13 +73,11 @@ public:
       }
     iterator_key it(this);
     return it;
-//    return *new iterator_key(this);
   }
 
   inline iterator_key end_key(){
     iterator_key it(this, -1);
     return it;
-//    return *new iterator_key(this, -1);
   }
 
   inline iterator_value begin_value(){
@@ -93,19 +89,17 @@ public:
       }
     iterator_value it(this);
     return it;
-//    return *new iterator_value(this);
   }
 
   inline iterator_value end_value(){
     iterator_value it(this, -1);
     return it;
-//    return *new iterator_value(this, -1);
   }
 
   ~ProbingHashTable(){
     updateVersion();
-    _dealloc(from_table, &from_m/*, &from_n*/);
-    _dealloc(to_table, &to_m/*, &to_n*/);
+    _dealloc(from_table, &from_m);
+    _dealloc(to_table, &to_m);
     delete deleted;
   }
 
@@ -116,7 +110,7 @@ private:
   Hash h;
   Method pm;
   Table *from_table, *to_table;
-  Pair* deleted;
+  Pair *deleted;
 
   std::shared_ptr<long int> version;
 
@@ -129,12 +123,13 @@ private:
                Value** output = nullptr){
     for(long int _i = 0; _i < *m; _i++){
         auto index = pm(_i, *m, h(key));
-        if(!table[index] || table[index] == deleted){
-          table[index] = new Pair(key, value);
-          (*n)++;
-          updateVersion();
-          return false;
-        }else if(table[index]->first == key){
+        if(table[index] == nullptr || table[index] == deleted){
+            auto pt = new Pair(key, value);
+            table[index] = pt;
+            (*n)++;
+            updateVersion();
+            return false;
+          }else if(table[index]->first == key){
           if(output != nullptr){
             if(*output)
                 delete *output;
@@ -194,6 +189,7 @@ private:
           }
         _insert(to_table, &to_m, &to_n, std::move(from_table[i]->first),
                 std::move(from_table[i]->second));
+        delete from_table[i];
         updateVersion();
         from_table[i] = nullptr;
         from_n--;
@@ -218,7 +214,7 @@ private:
     to_m = m;
   }
 
-  void _dealloc(Table* table, long int* m/*, long int* n*/){
+  void _dealloc(Table* table, long int* m){
     for(long int i = 0; table && i<*m; i++){
         if(table[i] != nullptr && table[i] != deleted){
             delete table[i];
@@ -234,8 +230,7 @@ template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr}/*,
-  deleted{&Pair()}*/{
+  from_table{nullptr}, to_table{nullptr}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
@@ -245,9 +240,6 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
       from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
-
-//  Pair empty;
-//  deleted = &empty;
   deleted = new Pair();
 }
 
