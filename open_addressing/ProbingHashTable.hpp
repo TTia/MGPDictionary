@@ -31,7 +31,7 @@ public:
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
   bool insert(const Key, const Value&, Value * = nullptr);
-  bool del(const Key, Value** = nullptr);
+  bool del(const Key, Value* = nullptr);
   iterator_value search(const Key);
   //  Value* search(const Key);
 
@@ -124,21 +124,14 @@ private:
     for(long int _i = 0; _i < *m; _i++){
         auto index = pm(_i, *m, h(key));
         if(table[index] == nullptr || table[index] == deleted){
-            auto pt = new Pair(key, value);
-            table[index] = pt;
+            table[index] = new Pair(key, value);
             (*n)++;
             updateVersion();
             return false;
           }else if(table[index]->first == key){
             if(output != nullptr){
-//                output = new Value(table[index]->second);
                 *output = table[index]->second;
               }
-//            if(output != nullptr){
-//                if(*output != nullptr)
-//                  delete *output;
-//                *output = new Value(table[index]->second);
-//              }
             table[index]->second = value;
             updateVersion();
             return true;
@@ -148,12 +141,12 @@ private:
   }
 
   bool _del(Table* table,
-            long int* m, long int* n, const Key key, Value** output){
+            long int* m, long int* n, const Key key, Value* output){
     for(long int _i = 0; _i<*m; _i++){
         int index = pm(_i, *m, h(key));
         if(table[index] && table[index] != deleted && table[index]->first == key){
             if(output != nullptr){
-                *output = new Value(std::move(table[index]->second));
+                *output = std::move(table[index]->second);
               }
             delete table[index];
             table[index] = deleted;
@@ -260,7 +253,7 @@ bool ProbingHashTable<Key, Value, Method>::insert(const Key key, const Value &va
 }
 
 template<typename Key, typename Value, typename Method>
-bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value** output){
+bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value *output){
   if(loadFactor() < lowerLF && !to_table){
       _shrinkTable();
     }

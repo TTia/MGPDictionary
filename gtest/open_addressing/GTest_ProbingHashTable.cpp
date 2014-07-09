@@ -101,14 +101,14 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
 TEST_F(GTest_ProbingHashTable, Delete_single) {
   std::hash<int> h;
   ProbingHashTable<int, char> pht(h);
-  char a = 'a', *output = nullptr;
+  char a = 'a', output;
   pht.insert(0, a);
   ASSERT_EQ(pht.countValues(), 1);
   ASSERT_TRUE(pht.del(0, &output));
-  ASSERT_TRUE(output != nullptr);
-  ASSERT_EQ(*output, 'a');
+//  ASSERT_TRUE(output != nullptr);
+  ASSERT_EQ(output, 'a');
   ASSERT_EQ(pht.countValues(), 0);
-  delete output;
+//  delete output;
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
@@ -126,17 +126,17 @@ TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
   ASSERT_EQ(*pht.search(m+1), b);
   ASSERT_EQ(pht.search(2*m+1), pht.end_value());
 
-  char* output = nullptr;
+  char output;
   ASSERT_TRUE(pht.del(m+1, &output));
-  ASSERT_EQ(*output, b);
+  ASSERT_EQ(output, b);
   ASSERT_EQ(pht.countValues(), 1);
-  delete output;
+//  delete output;
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_non_existing_element) {
   std::hash<int> h;
   ProbingHashTable<int, char> pht(h);
-  char *output;
+  char output;
   ASSERT_EQ(pht.countValues(), 0);
   ASSERT_FALSE(pht.del(17, &output));
   ASSERT_EQ(pht.countValues(), 0);
