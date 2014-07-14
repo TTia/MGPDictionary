@@ -28,7 +28,7 @@ public:
 
   bool del(const Key, Value* = nullptr);
 
-  iterator_value search(const Key);
+  iterator search(const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
@@ -42,6 +42,8 @@ public:
     return !(to_table? to_m: from_m) ?
           0 : double(countValues())/ (to_table? to_m: from_m);
   }
+
+  Value& operator[](const Key);
 
   iterator begin();
 
@@ -138,7 +140,7 @@ bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value *output){
 }
 
 template<typename Key, typename Value, typename Method>
-typename ProbingHashTable<Key, Value, Method>::iterator_value
+typename ProbingHashTable<Key, Value, Method>::iterator
 ProbingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
@@ -146,17 +148,17 @@ ProbingHashTable<Key, Value, Method>::search(const Key key){
   for(long int _i = 0; _i < from_m; _i++){
       long int index = pm(_i, from_m, h(key));
       if(!from_table[index]){
-          return end_value();
+          return end();
         }
       if(from_table[index] == deleted){
           continue;
         }
       if(from_table[index]->first == key){
-          iterator_value it(this, index);
+          iterator it(this, index);
           return it;
         }
     }
-  return end_value();
+  return end();
 }
 
 template<typename Key, typename Value, typename Method>
@@ -224,6 +226,15 @@ ProbingHashTable<Key, Value, Method>::~ProbingHashTable(){
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
   delete deleted;
+}
+
+template<typename Key, typename Value, typename Method>
+Value& ProbingHashTable<Key, Value, Method>::operator[](const Key key){
+  iterator it = this->search(key);
+  if(it == this->end()){
+      throw std::out_of_range("No such key.");
+    }
+  return (*it).second;
 }
 
 /*

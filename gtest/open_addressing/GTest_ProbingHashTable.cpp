@@ -52,8 +52,10 @@ TEST_F(GTest_ProbingHashTable, Search) {
   std::hash<int> h;
   ProbingHashTable<int, char> pht(h);
   char a = 'a';
-  pht.insert(1, a);
-  ASSERT_EQ(*pht.search(1), a);
+  std::pair<int, char> p{1, a};
+
+  pht.insert(p.first, p.second);
+  ASSERT_EQ(*pht.search(1), p);
 }
 
 
@@ -62,17 +64,19 @@ TEST_F(GTest_ProbingHashTable, Collisions) {
   int m = 13;
   ProbingHashTable<int, char> pht(h, .5, m);
   char a = 'a', b = 'b', c = 'c';
-  pht.insert(1, a);
-  pht.insert(m+1, b);
-  pht.insert(2*m+1, c);
-  ASSERT_EQ(*pht.search(1), a);
-  ASSERT_EQ(*pht.search(m+1), b);
+  std::pair<int, char> p1{1, a}, p2{m+1,b}, p3{2*m+1, c};
+  pht.insert(p1.first, p1.second);
+  pht.insert(p2.first, p2.second);
+  pht.insert(p3.first, p3.second);
+  ASSERT_EQ(*pht.search(1), p1);
+  ASSERT_EQ(*pht.search(m+1), p2);
+  ASSERT_EQ(*pht.search(2*m+1), p3);
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_on_empty_table) {
   std::hash<int> h;
   ProbingHashTable<int, char> pht(h);
-  ASSERT_EQ(pht.search(1), pht.end_value());
+  ASSERT_EQ(pht.search(1), pht.end());
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
@@ -80,9 +84,10 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
   int m = 10;
   ProbingHashTable<int, char> pht(h, .5, m);
   char a = 'a';
-  pht.insert(2*m+1, a);
-  ASSERT_EQ(*pht.search(2*m+1), a);
-  ASSERT_EQ(pht.search(2*m), pht.end_value());
+  std::pair<int, char> p1{2*m+1, a};
+  pht.insert(p1.first, p1.second);
+  ASSERT_EQ(*pht.search(p1.first), p1);
+  ASSERT_EQ(pht.search(2*m), pht.end());
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
@@ -91,11 +96,27 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
   ProbingHashTable<int, char> pht(h, .5, m);
   char a = 'a';
   for(int i = 0; i<100; i++){
-      pht.insert(i, a);
-      ASSERT_NE(pht.search(i), pht.end_value());
-      ASSERT_EQ(a, *pht.search(i));
+      std::pair<int, char> p1{i, a};
+      pht.insert(p1.first, p1.second);
+      ASSERT_NE(pht.search(i), pht.end());
+      ASSERT_EQ(p1, *pht.search(i));
     }
-  ASSERT_EQ(pht.search(100), pht.end_value());
+  ASSERT_EQ(pht.search(100), pht.end());
+}
+
+TEST_F(GTest_ProbingHashTable, Operator_Square_Bracket) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht{h};
+  char a = 'a';
+  pht.insert(1, a);
+
+  ASSERT_TRUE(pht[1] == 'a');
+  try{
+    pht[2];
+    ASSERT_TRUE(false);
+  }catch(std::out_of_range){
+    ASSERT_TRUE(true);
+  }
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_single) {
@@ -105,10 +126,8 @@ TEST_F(GTest_ProbingHashTable, Delete_single) {
   pht.insert(0, a);
   ASSERT_EQ(pht.countValues(), 1);
   ASSERT_TRUE(pht.del(0, &output));
-//  ASSERT_TRUE(output != nullptr);
   ASSERT_EQ(output, 'a');
   ASSERT_EQ(pht.countValues(), 0);
-//  delete output;
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
@@ -116,21 +135,21 @@ TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
   int m = 13;
   ProbingHashTable<int, char> pht(h, .5, m);
   char a = 'a', b = 'b', c = 'c';
-  pht.insert(1, a);
-  pht.insert(m+1, b);
-  pht.insert(2*m+1, c);
+  std::pair<int, char> p1{1, a}, p2{m+1,b}, p3{2*m+1, c};
+  pht.insert(p1.first, p1.second);
+  pht.insert(p2.first, p2.second);
+  pht.insert(p3.first, p3.second);
   ASSERT_EQ(pht.countValues(), 3);
-  ASSERT_FALSE(pht.del(2*m+1));
+  ASSERT_FALSE(pht.del(p3.first));
   ASSERT_EQ(pht.countValues(), 2);
-  ASSERT_EQ(*pht.search(1), a);
-  ASSERT_EQ(*pht.search(m+1), b);
-  ASSERT_EQ(pht.search(2*m+1), pht.end_value());
+  ASSERT_EQ(*pht.search(1), p1);
+  ASSERT_EQ(*pht.search(m+1), p2);
+  ASSERT_EQ(pht.search(2*m+1), pht.end());
 
   char output;
   ASSERT_TRUE(pht.del(m+1, &output));
   ASSERT_EQ(output, b);
   ASSERT_EQ(pht.countValues(), 1);
-//  delete output;
 }
 
 TEST_F(GTest_ProbingHashTable, Delete_non_existing_element) {

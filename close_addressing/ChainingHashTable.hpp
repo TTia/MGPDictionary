@@ -30,7 +30,7 @@ public:
 
   bool del(const Key, Value* = nullptr);
 
-  iterator_value search(const Key);
+  iterator search(const Key);
 
   iterator begin();
 
@@ -45,6 +45,8 @@ public:
   iterator_value end_value();
 
   ~ChainingHashTable();
+
+  Value& operator[](const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
@@ -138,23 +140,22 @@ bool ChainingHashTable<Key, Value, Method>::del(const Key key, Value* output){
 }
 
 template<typename Key, typename Value, typename Method>
-typename ChainingHashTable<Key, Value, Method>::iterator_value
+typename ChainingHashTable<Key, Value, Method>::iterator
 ChainingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
     }
   long int i = hm(from_m, h(key));
   if(!from_table[i]){
-      return this->end_value();
+      return this->end();
     }
   for(size_t j = 0; j != from_table[i]->size(); j++) {
       if(from_table[i]->at(j).first == key){
-          //auto it = new iterator_value(this, i, j);
-          iterator_value it(this, i, j);
+          iterator it(this, i, j);
           return it;
         }
     }
-  return this->end_value();
+  return this->end();
 }
 template<typename Key, typename Value, typename Method>
 typename ChainingHashTable<Key, Value, Method>::iterator
@@ -215,6 +216,15 @@ ChainingHashTable<Key, Value, Method>::~ChainingHashTable(){
   updateVersion();
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
+}
+
+template<typename Key, typename Value, typename Method>
+Value& ChainingHashTable<Key, Value, Method>::operator[](const Key key){
+  iterator it = this->search(key);
+  if(it == this->end()){
+      throw std::out_of_range("No such key.");
+    }
+  return (*it).second;
 }
 
 /*
