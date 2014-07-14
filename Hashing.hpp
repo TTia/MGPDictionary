@@ -35,10 +35,12 @@ public:
   }
   inline long int hash(long int m, long int k) const{
     //w = k in bits, r = m in bits
-    int w = !k ? 1 : log2(k), r = !m ? 1 : log2(m);
+
+    long int w = !k ? 1 : log2(std::abs(k)),
+            r = !m ? 1 : log2(m);
     //A in [2^(w-1), 2^w]
-    long int long A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
-    return std::abs(((A*k)% int(pow(2, w))) >> (w-r));
+    long int A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
+    return (A*k) % int(pow(2, w)) >> std::abs(w-r);
   }
 };
 

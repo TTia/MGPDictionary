@@ -47,7 +47,7 @@ public:
   ~CHTBidirectionalIterator(){
   }
 private:
-  typename ChainingHashTable<Key, Value, Method>::Table* table;
+  const typename ChainingHashTable<Key, Value, Method>::Table* table;
   long int m, i;
   unsigned long j;
   std::shared_ptr<long int> version;

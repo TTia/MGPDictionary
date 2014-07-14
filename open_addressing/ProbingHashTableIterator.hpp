@@ -47,7 +47,7 @@ public:
       }
   }
 private:
-  typename ProbingHashTable<Key, Value, Method>::Table* table;
+  const typename ProbingHashTable<Key, Value, Method>::Table* table;
   const typename ProbingHashTable<Key, Value, Method>::Pair* deleted;
 
   long int m;

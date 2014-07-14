@@ -99,22 +99,8 @@ public:
 
   ~ChainingHashTable(){
     updateVersion();
-    _dealloc(from_table, &from_m/*, &from_n*/);
-    _dealloc(to_table, &to_m/*, &to_n*/);
-//    for(int i = 0; from_table && i<from_m; i++){
-//        if(from_table[i]){
-//            from_table[i]->clear();
-//            delete from_table[i];
-//          }
-//      }
-//    delete [] from_table;
-//    for(int i = 0; to_table && i<to_m; i++){
-//        if(to_table[i]){
-//            to_table[i]->clear();
-//            delete to_table[i];
-//          }
-//      }
-//    delete [] to_table;
+    _dealloc(from_table, &from_m);
+    _dealloc(to_table, &to_m);
   }
 
 private:
@@ -201,7 +187,7 @@ private:
         updateVersion();
       }
     if(!from_n){
-        _dealloc(from_table, &from_m/*, &from_n*/);
+        _dealloc(from_table, &from_m);
         from_m = to_m;
         from_n = to_n;
         to_m = 0;
@@ -217,15 +203,13 @@ private:
       }
     to_m = m;
   }
-  void _dealloc(Table* table, long int* m/*, long ints int* n*/){
+  void _dealloc(Table* table, long int* m){
     for(long int i = 0; table && i<*m; i++){
         if(table[i]){
             table[i]->clear();
             delete table[i];
           }
       }
-//    *m = 0;
-//    *n = 0;
     delete [] table;
     table = nullptr;
   }

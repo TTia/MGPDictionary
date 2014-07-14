@@ -8,13 +8,6 @@
 #include <stdexcept>
 #include <memory>
 
-//template <typename Key, typename Value, typename Method>
-//class PHTBidirectionalIterator;
-//template<typename Key, typename Value, typename Method>
-//class PHTBidirectionalIterator_Key;
-//template<typename Key, typename Value, typename Method>
-//class PHTBidirectionalIterator_Value;
-
 template<typename Key, typename Value, typename Method = LinearProbing>
 class ProbingHashTable{
   friend class PHTBidirectionalIterator<Key, Value, Method>;
@@ -33,7 +26,6 @@ public:
   bool insert(const Key, const Value&, Value * = nullptr);
   bool del(const Key, Value* = nullptr);
   iterator_value search(const Key);
-  //  Value* search(const Key);
 
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
