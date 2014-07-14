@@ -21,10 +21,13 @@ public:
   typedef PHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
   ProbingHashTable() = delete;
+
   ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
 
   bool insert(const Key, const Value&, Value * = nullptr);
+
   bool del(const Key, Value* = nullptr);
+
   iterator_value search(const Key);
 
   inline int rehashThreshold(){
@@ -40,60 +43,19 @@ public:
           0 : double(countValues())/ (to_table? to_m: from_m);
   }
 
-  inline iterator begin(){
-    if(!countValues()){
-        return this->end();
-      }
-    if(to_table){
-        _rehash(from_n);
-      }
-    iterator it(this);
-    return it;
-  }
+  iterator begin();
 
-  inline iterator end(){
-    iterator it(this, -1);
-    return it;
-  }
+  iterator end();
 
-  inline iterator_key begin_key(){
-    if(!countValues()){
-        return this->end_key();
-      }
-    if(to_table){
-        _rehash(from_n);
-      }
-    iterator_key it(this);
-    return it;
-  }
+  iterator_key begin_key();
 
-  inline iterator_key end_key(){
-    iterator_key it(this, -1);
-    return it;
-  }
+  iterator_key end_key();
 
-  inline iterator_value begin_value(){
-    if(!countValues()){
-        return this->end_value();
-      }
-    if(to_table){
-        _rehash(from_n);
-      }
-    iterator_value it(this);
-    return it;
-  }
+  iterator_value begin_value();
 
-  inline iterator_value end_value(){
-    iterator_value it(this, -1);
-    return it;
-  }
+  iterator_value end_value();
 
-  ~ProbingHashTable(){
-    updateVersion();
-    _dealloc(from_table, &from_m);
-    _dealloc(to_table, &to_m);
-    delete deleted;
-  }
+  ~ProbingHashTable();
 
 private:
   long int from_m, to_m, from_n, to_n;
@@ -112,107 +74,26 @@ private:
 
   bool _insert(Table* table, long int* m, long int* n,
                const Key key, const Value& value,
-               Value* output = nullptr){
-    for(long int _i = 0; _i < *m; _i++){
-        auto index = pm(_i, *m, h(key));
-        if(table[index] == nullptr || table[index] == deleted){
-            table[index] = new Pair(key, value);
-            (*n)++;
-            updateVersion();
-            return false;
-          }else if(table[index]->first == key){
-            if(output != nullptr){
-                *output = table[index]->second;
-              }
-            table[index]->second = value;
-            updateVersion();
-            return true;
-          }
-      }
-    throw std::logic_error("Rehashing should have occurred.");
-  }
+               Value* output);
 
-  bool _del(Table* table,
-            long int* m, long int* n, const Key key, Value* output){
-    for(long int _i = 0; _i<*m; _i++){
-        int index = pm(_i, *m, h(key));
-        if(table[index] && table[index] != deleted && table[index]->first == key){
-            if(output != nullptr){
-                *output = std::move(table[index]->second);
-              }
-            delete table[index];
-            table[index] = deleted;
-            (*n)--;
-            updateVersion();
-            return output;
-          }
-      }
-    return false;
-  }
+  bool _del(Table* table, long int* m, long int* n,
+            const Key key, Value* output);
 
-  void _shrinkTable(){
-    if(from_m <= min_m){
-        return;
-      }
-    to_m = from_m / 2;
-    to_n = 0;
-    _alloca(to_m);
-  }
+  void _shrinkTable();
 
-  void _enlargeTable(){
-    to_m = from_m * 2;
-    to_n = 0;
-    _alloca(to_m);
-  }
+  void _enlargeTable();
 
-  void _rehash(int k){
-    int r = 0;
-    for(long int i = 0; i < from_m && r < k && from_n > 0; i++){
-        if(!from_table[i]){
-            continue;
-          }
-        if(from_table[i] == deleted){
-            from_table[i] = nullptr;
-            continue;
-          }
-        _insert(to_table, &to_m, &to_n, std::move(from_table[i]->first),
-                std::move(from_table[i]->second));
-        delete from_table[i];
-        updateVersion();
-        from_table[i] = nullptr;
-        from_n--;
-        r++;
-      }
-    if(!from_n){
-        _dealloc(from_table, &from_m);
-        from_m = to_m;
-        from_n = to_n;
-        to_m = 0;
-        to_n = 0;
-        from_table = to_table;
-        to_table = nullptr;
-      }
-  }
+  void _rehash(int k);
 
-  void _alloca(int m){
-    to_table = new Table[m];
-    for(int i = 0; i<m; i++){
-        to_table[i] = nullptr;
-      }
-    to_m = m;
-  }
+  void _alloca(int m);
 
-  void _dealloc(Table* table, long int* m){
-    for(long int i = 0; table && i<*m; i++){
-        if(table[i] != nullptr && table[i] != deleted){
-            delete table[i];
-          }
-      }
-    delete [] table;
-    table = nullptr;
-  }
+  void _dealloc(Table* table, long int* m);
 
 };
+
+/*
+ * Public Methods
+ */
 
 template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
@@ -258,7 +139,6 @@ bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value *output){
 
 template<typename Key, typename Value, typename Method>
 typename ProbingHashTable<Key, Value, Method>::iterator_value
-//Value*
 ProbingHashTable<Key, Value, Method>::search(const Key key){
   if(to_table){
       _rehash(from_n);
@@ -277,6 +157,186 @@ ProbingHashTable<Key, Value, Method>::search(const Key key){
         }
     }
   return end_value();
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator
+ProbingHashTable<Key, Value, Method>::begin(){
+  if(!countValues()){
+      return this->end();
+    }
+  if(to_table){
+      _rehash(from_n);
+    }
+  iterator it(this);
+  return it;
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator
+ProbingHashTable<Key, Value, Method>::end(){
+  iterator it(this, -1);
+  return it;
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator_key
+ProbingHashTable<Key, Value, Method>::begin_key(){
+  if(!countValues()){
+      return this->end_key();
+    }
+  if(to_table){
+      _rehash(from_n);
+    }
+  iterator_key it(this);
+  return it;
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator_key
+ProbingHashTable<Key, Value, Method>::end_key(){
+  iterator_key it(this, -1);
+  return it;
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator_value
+ProbingHashTable<Key, Value, Method>::begin_value(){
+  if(!countValues()){
+      return this->end_value();
+    }
+  if(to_table){
+      _rehash(from_n);
+    }
+  iterator_value it(this);
+  return it;
+}
+
+template<typename Key, typename Value, typename Method>
+typename ProbingHashTable<Key, Value, Method>::iterator_value
+ProbingHashTable<Key, Value, Method>::end_value(){
+  iterator_value it(this, -1);
+  return it;
+}
+template<typename Key, typename Value, typename Method>
+ProbingHashTable<Key, Value, Method>::~ProbingHashTable(){
+  updateVersion();
+  _dealloc(from_table, &from_m);
+  _dealloc(to_table, &to_m);
+  delete deleted;
+}
+
+/*
+ * Private Methods
+ */
+
+template<typename Key, typename Value, typename Method>
+bool ProbingHashTable<Key, Value, Method>::_insert(Table* table, long int* m, long int* n,
+             const Key key, const Value& value,
+             Value* output){
+  for(long int _i = 0; _i < *m; _i++){
+      auto index = pm(_i, *m, h(key));
+      if(table[index] == nullptr || table[index] == deleted){
+          table[index] = new Pair(key, value);
+          (*n)++;
+          updateVersion();
+          return false;
+        }else if(table[index]->first == key){
+          if(output != nullptr){
+              *output = table[index]->second;
+            }
+          table[index]->second = value;
+          updateVersion();
+          return true;
+        }
+    }
+  throw std::logic_error("Rehashing should have occurred.");
+}
+
+template<typename Key, typename Value, typename Method>
+bool ProbingHashTable<Key, Value, Method>::_del(Table* table,
+          long int* m, long int* n, const Key key, Value* output){
+  for(long int _i = 0; _i<*m; _i++){
+      int index = pm(_i, *m, h(key));
+      if(table[index] && table[index] != deleted && table[index]->first == key){
+          if(output != nullptr){
+              *output = std::move(table[index]->second);
+            }
+          delete table[index];
+          table[index] = deleted;
+          (*n)--;
+          updateVersion();
+          return output;
+        }
+    }
+  return false;
+}
+
+template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_shrinkTable(){
+  if(from_m <= min_m){
+      return;
+    }
+  to_m = from_m / 2;
+  to_n = 0;
+  _alloca(to_m);
+}
+
+template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_enlargeTable(){
+  to_m = from_m * 2;
+  to_n = 0;
+  _alloca(to_m);
+}
+
+template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_rehash(int k){
+  int r = 0;
+  for(long int i = 0; i < from_m && r < k && from_n > 0; i++){
+      if(!from_table[i]){
+          continue;
+        }
+      if(from_table[i] == deleted){
+          from_table[i] = nullptr;
+          continue;
+        }
+      _insert(to_table, &to_m, &to_n, std::move(from_table[i]->first),
+              std::move(from_table[i]->second), nullptr);
+      delete from_table[i];
+      updateVersion();
+      from_table[i] = nullptr;
+      from_n--;
+      r++;
+    }
+  if(!from_n){
+      _dealloc(from_table, &from_m);
+      from_m = to_m;
+      from_n = to_n;
+      to_m = 0;
+      to_n = 0;
+      from_table = to_table;
+      to_table = nullptr;
+    }
+}
+
+template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_alloca(int m){
+  to_table = new Table[m];
+  for(int i = 0; i<m; i++){
+      to_table[i] = nullptr;
+    }
+  to_m = m;
+}
+
+template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_dealloc(Table* table, long int* m){
+  for(long int i = 0; table && i<*m; i++){
+      if(table[i] != nullptr && table[i] != deleted){
+          delete table[i];
+        }
+    }
+  delete [] table;
+  table = nullptr;
 }
 
 #endif // CHAININGHASHTABLE_HPP
