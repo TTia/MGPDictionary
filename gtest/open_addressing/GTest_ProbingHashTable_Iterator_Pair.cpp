@@ -27,6 +27,17 @@ TEST_F(GTest_ProbingHashTable_Iterator_Pair, Iterate_over_table_Forward_order) {
     }
   ASSERT_EQ(6, result);
 }
+TEST_F(GTest_ProbingHashTable_Iterator_Pair, Iterate_over_cht_ForEach) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht(h);
+  char a = 'a';
+  pht.insert(1,a); pht.insert(2,a); pht.insert(3,a);
+  int result = 0;
+  for(auto current: pht){
+    result += current.first;
+    }
+  ASSERT_EQ(6, result);
+}
 
 TEST_F(GTest_ProbingHashTable_Iterator_Pair, Iterate_over_table_Forward_order_With_collisions) {
   std::hash<int> h;

@@ -66,6 +66,7 @@ private:
   }
 
   inline bool checkBoundaries() const{
+        //Switch table
     return i >= 0 && i < m;
   }
 

@@ -30,6 +30,19 @@ TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Forward_order) {
   ASSERT_EQ(6, result);
 }
 
+TEST_F(GTest_Iterator_Pair, Iterate_over_cht_ForEach) {
+  std::hash<int> h;
+  ChainingHashTable<int, char> cht{h, .5};
+  char a = 'a';
+  cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
+
+  int result = 0;
+  for(auto current: cht){
+    result += current.first;
+    }
+  ASSERT_EQ(6, result);
+}
+
 TEST_F(GTest_Iterator_Pair, Iterate_over_cht_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;

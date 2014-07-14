@@ -64,6 +64,7 @@ private:
     return *version == originalVersion;
   }
   inline bool checkBoundaries() const{
+    //Switch table
     return i >= 0 && i < m;
   }
   void validate(){
