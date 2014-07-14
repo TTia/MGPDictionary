@@ -2,7 +2,6 @@
 #define CHAININGHASHTABLEITERATOR_HPP
 
 #include "../Hashing.hpp"
-//#include "ChainingHashTable.hpp"
 
 #include <memory>
 #include <iterator>
@@ -64,7 +63,6 @@ private:
     return *version == originalVersion;
   }
   inline bool checkBoundaries() const{
-    //Switch table
     return i >= 0 && i < m;
   }
   void validate(){
@@ -135,9 +133,11 @@ private:
   typename ChainingHashTable<Key, Value, Method>::Pair& dereference() const {
     if(!isValid()){
         throw std::logic_error("Invalid iterator.");
-      }else if(isEnd()){
+      }
+    if(isEnd()){
         throw std::out_of_range("This iterator has reach the end.");
-      }else if(!table[i]){
+      }
+    if(!table[i]){
         throw std::out_of_range("Seg-fault. Sorry!");
       }
     return table[i]->at(j);

@@ -2,7 +2,6 @@
 #define CHAININGHASHTABLEITERATOR_HPP
 
 #include "Probing.hpp"
-//#include "ProbingHashTable.hpp"
 #include <memory>
 #include <iterator>
 #include <boost/iterator/iterator_facade.hpp>
@@ -66,7 +65,6 @@ private:
   }
 
   inline bool checkBoundaries() const{
-        //Switch table
     return i >= 0 && i < m;
   }
 
@@ -113,9 +111,11 @@ private:
   typename ProbingHashTable<Key, Value, Method>::Pair& dereference() const {
     if(!isValid()){
         throw std::logic_error("Invalid iterator.");
-      }else if(isEnd()){
+      }
+    if(isEnd()){
         throw std::out_of_range("This iterator has reach the end.");
-      }else if(!table[i]){
+      }
+    if(!table[i]){
         throw std::out_of_range("Seg-fault. Sorry!");
       }
     return *table[i];

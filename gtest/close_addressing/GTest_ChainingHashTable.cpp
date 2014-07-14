@@ -35,18 +35,17 @@ TEST_F(GTest_ChainingHashTable, Insert_with_duplication) {
   std::hash<int> h;
   ChainingHashTable<int, char> cht{h};
   char a = 'a', b = 'b', c = 'c';
-  char *output;
+  char output;
 
   ASSERT_FALSE(cht.insert(1,a));
   ASSERT_FALSE(cht.insert(2,c));
 
   ASSERT_TRUE(cht.insert(1,a, &output));
-  ASSERT_EQ(*output, a);
+  ASSERT_EQ(output, a);
 
   ASSERT_TRUE(cht.insert(1,b));
   ASSERT_TRUE(cht.insert(1,a));
-  ASSERT_EQ(cht.  countValues(), 2);
-  delete output;
+  ASSERT_EQ(cht.countValues(), 2);
 }
 
 TEST_F(GTest_ChainingHashTable, Search) {
@@ -101,14 +100,12 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_Extended) {
 TEST_F(GTest_ChainingHashTable, Delete_single) {
   std::hash<int> h;
   ChainingHashTable<int, char> cht{h};
-  char a = 'a', *output = nullptr;
+  char a = 'a', output;
   cht.insert(0, a);
   ASSERT_EQ(cht.countValues(), 1);
   ASSERT_TRUE(cht.del(0, &output));
-  ASSERT_TRUE(output != nullptr);
-  ASSERT_EQ(*output, 'a');
+  ASSERT_EQ(output, 'a');
   ASSERT_EQ(cht.countValues(), 0);
-  delete output;
 }
 
 TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
@@ -126,11 +123,10 @@ TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
   ASSERT_EQ(*cht.search(m+1), b);
   ASSERT_EQ(cht.search(2*m+1), cht.end_value());
 
-  char* output = nullptr;
+  char output;
   ASSERT_TRUE(cht.del(m+1, &output));
-  ASSERT_EQ(*output, b);
+  ASSERT_EQ(output, b);
   ASSERT_EQ(cht.countValues(), 1);
-  delete output;
 }
 
 TEST_F(GTest_ChainingHashTable, Delete_non_existing_element) {
