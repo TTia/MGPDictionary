@@ -13,6 +13,58 @@ TEST_F(GTest_ChainingHashTable, Constructor) {
   EXPECT_EQ(cht.loadFactor(), 0);
 }
 
+TEST_F(GTest_ChainingHashTable, Copy_Constructor) {
+  std::hash<int> h;
+  ChainingHashTable<int, char> cht{h};
+  cht.insert(1, 'a');
+
+  ChainingHashTable<int, char> cht2{cht};
+  cht2.insert(2, 'b');
+  ASSERT_EQ(1, cht.countValues());
+  ASSERT_EQ(2, cht2.countValues());
+
+  cht[1] = 'd';
+  ASSERT_EQ((*cht.search(1)).second, 'd');
+  ASSERT_EQ((*cht2.search(1)).second, 'a');
+  cht2.insert(3, 'c');
+  cht2.search(3);
+  cht2.del(3);
+}
+
+TEST_F(GTest_ChainingHashTable, Move_Constructor) {
+  std::hash<int> h;
+  ChainingHashTable<int, char> cht{h};
+  cht.insert(1, 'a');
+
+  ChainingHashTable<int, char> cht2{std::move(cht)};
+  cht2.insert(2, 'b');
+  ASSERT_EQ(2, cht2.countValues());
+}
+
+TEST_F(GTest_ChainingHashTable, Copy_Operator) {
+  std::hash<int> h;
+  ChainingHashTable<int, char> cht{h};
+  ChainingHashTable<int, char, KnuthDivisionMethod> cht2{h};
+  cht.insert(1, 'a');
+
+  cht2 = cht;
+  cht2.insert(2, 'b');
+  ASSERT_EQ(1, cht.countValues());
+  ASSERT_EQ(2, cht2.countValues());
+
+}
+
+TEST_F(GTest_ChainingHashTable, Copy_Move_Operator) {
+  std::hash<int> h;
+  ChainingHashTable<int, char> cht{h};
+  ChainingHashTable<int, char> cht2{h};
+  cht.insert(1, 'a');
+
+  cht2 = std::move(cht);
+  cht2.insert(2, 'b');
+  ASSERT_EQ(2, cht2.countValues());
+}
+
 TEST_F(GTest_ChainingHashTable, Constructor_illegal_parameters) {
   std::hash<int> h;
   try{

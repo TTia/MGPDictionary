@@ -12,6 +12,57 @@ TEST_F(GTest_ProbingHashTable, Constructor) {
   EXPECT_EQ(pht.loadFactor(), 0);
 }
 
+TEST_F(GTest_ProbingHashTable, Copy_Constructor) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht{h};
+  pht.insert(1, 'a');
+
+  ProbingHashTable<int, char> pht2{pht};
+  pht2.insert(2, 'b');
+  ASSERT_EQ(1, pht.countValues());
+  ASSERT_EQ(2, pht2.countValues());
+
+  pht[1] = 'd';
+  ASSERT_EQ((*pht.search(1)).second, 'd');
+  ASSERT_EQ((*pht2.search(1)).second, 'a');
+  pht2.insert(3, 'c');
+  pht2.search(3);
+  pht2.del(3);
+}
+
+TEST_F(GTest_ProbingHashTable, Move_Constructor) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht{h};
+  pht.insert(1, 'a');
+
+  ProbingHashTable<int, char> pht2{std::move(pht)};
+  pht2.insert(2, 'b');
+  ASSERT_EQ(2, pht2.countValues());
+}
+
+TEST_F(GTest_ProbingHashTable, Copy_Operator) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht{h};
+  ProbingHashTable<int, char, QuadraticProbing> pht2{h};
+  pht.insert(1, 'a');
+
+  pht2 = pht;
+  pht2.insert(2, 'b');
+  ASSERT_EQ(1, pht.countValues());
+  ASSERT_EQ(2, pht2.countValues());
+}
+
+TEST_F(GTest_ProbingHashTable, Copy_Move_Operator) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht{h};
+  ProbingHashTable<int, char> pht2{h};
+  pht.insert(1, 'a');
+
+  pht2 = std::move(pht);
+  pht2.insert(2, 'b');
+  ASSERT_EQ(2, pht2.countValues());
+}
+
 TEST_F(GTest_ProbingHashTable, Constructor_illegal_parameters) {
   std::hash<int> h;
   try{
@@ -20,6 +71,11 @@ TEST_F(GTest_ProbingHashTable, Constructor_illegal_parameters) {
   }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
+}
+
+TEST_F(GTest_ProbingHashTable, Constructor_copy) {
+  std::hash<int> h;
+  ProbingHashTable<int, char> pht(h);
 }
 
 TEST_F(GTest_ProbingHashTable, Insert_single) {
@@ -64,13 +120,13 @@ TEST_F(GTest_ProbingHashTable, Collisions) {
   int m = 13;
   ProbingHashTable<int, char> pht(h, .5, m);
   char a = 'a', b = 'b', c = 'c';
-  std::pair<int, char> p1{1, a}, p2{m+1,b}, p3{2*m+1, c};
+  std::pair<int, char> p1{0, a}, p2{m,b}, p3{2*m, c};
   pht.insert(p1.first, p1.second);
   pht.insert(p2.first, p2.second);
   pht.insert(p3.first, p3.second);
-  ASSERT_EQ(*pht.search(1), p1);
-  ASSERT_EQ(*pht.search(m+1), p2);
-  ASSERT_EQ(*pht.search(2*m+1), p3);
+  ASSERT_EQ(*pht.search(p1.first), p1);
+  ASSERT_EQ(*pht.search(p2.first), p2);
+  ASSERT_EQ(*pht.search(p3.first), p3);
 }
 
 TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_on_empty_table) {
@@ -141,6 +197,7 @@ TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
   pht.insert(p3.first, p3.second);
   ASSERT_EQ(pht.countValues(), 3);
   ASSERT_FALSE(pht.del(p3.first));
+
   ASSERT_EQ(pht.countValues(), 2);
   ASSERT_EQ(*pht.search(1), p1);
   ASSERT_EQ(*pht.search(m+1), p2);

@@ -22,9 +22,29 @@ public:
   typedef CHTBidirectionalIterator_Key<Key, Value, Method> iterator_key;
   typedef CHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
+  static constexpr double DEFAULT_LF = 0.5;
+  static constexpr long int DEFAULT_M = 17;
+
   ChainingHashTable() = delete;
 
-  ChainingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
+  ChainingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+
+  template<typename OtherMethod = Method>
+  ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>&,
+                    double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+
+  ChainingHashTable(ChainingHashTable&&);
+
+  Value& operator[](const Key);
+
+  template<typename OtherMethod = Method>
+  ChainingHashTable<Key, Value, Method>&
+  operator=(ChainingHashTable<Key, Value, OtherMethod>& other);
+
+  ChainingHashTable&
+  operator=(const ChainingHashTable& other) = delete;
+
+  ChainingHashTable& operator=(ChainingHashTable&& other );
 
   bool insert(const Key, const Value&, Value* = nullptr);
 
@@ -46,19 +66,26 @@ public:
 
   ~ChainingHashTable();
 
-  Value& operator[](const Key);
-
   inline int rehashThreshold(){
     return (to_table? to_m: from_m) * 0.10;
   }
 
-  inline int countValues(){
+  inline int countValues() const{
     return to_n+from_n;
   }
 
   inline double loadFactor(){
     return !(to_table? to_m: from_m) ?
           0 : double(countValues())/ (to_table? to_m: from_m);
+  }
+
+  inline Hash getHash() const{
+    return h;
+  }
+
+  inline std::pair<double, double> getLoadFactorBoundaries() const{
+    std::pair<double,double> boundaries{lowerLF, upperLF};
+    return boundaries;
   }
 
 private:
@@ -75,6 +102,8 @@ private:
   inline void updateVersion(){
     *version = *version + 1l;
   }
+
+  void _checkContructorParameters(long int, double);
 
   bool _insert(Table* table,
                long int* m, long int* n,
@@ -101,17 +130,98 @@ private:
 template<typename Key, typename Value, typename Method>
 ChainingHashTable<Key, Value, Method>::ChainingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
-  upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr} {
-  if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
-      throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
-    }
+  upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
+  h{h}, to_table{nullptr} {
+  _checkContructorParameters(m, loadFactorThreshold);
 
   from_table = new Table[m];
   for(long int i = 0; i<m; i++){
       from_table[i] = nullptr;
     }
   version = std::make_shared<long int>(0);
+}
+
+template<typename Key, typename Value, typename Method>
+template<typename OtherMethod>
+ChainingHashTable<Key, Value, Method>::
+ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>& cht,
+                  double loadFactorThreshold, long int m)
+  : ChainingHashTable(cht.h, loadFactorThreshold, m){
+  if(this == &cht)
+    return;
+  for(auto p: cht){
+      this->insert(p.first, p.second);
+    }
+}
+
+template<typename Key, typename Value, typename Method>
+ChainingHashTable<Key, Value, Method>::
+ChainingHashTable(ChainingHashTable&& cht)
+  : from_m{std::move(cht.from_m)}, to_m{std::move(cht.to_m)},
+    from_n{std::move(cht.from_n)}, to_n{std::move(cht.to_n)},
+    min_m{std::move(cht.min_m)},
+    upperLF{std::move(cht.upperLF)}, lowerLF{std::move(cht.lowerLF)},
+    h{std::move(cht.h)},
+    from_table{std::move(cht.from_table)}, to_table{std::move(cht.to_table)}{
+  cht.from_n = 0;
+  cht.from_m = 0;
+  cht.from_table = 0;
+  cht.to_n = 0;
+  cht.to_m = 0;
+  cht.to_table = 0;
+  cht.updateVersion();
+
+  version = std::make_shared<long int>(0);
+}
+
+template<typename Key, typename Value, typename Method>
+template<typename OtherMethod>
+ChainingHashTable<Key, Value, Method>&
+ChainingHashTable<Key, Value, Method>::operator=(ChainingHashTable<Key, Value, OtherMethod>& other){
+  _dealloc(from_table, &from_m);
+  _dealloc(to_table, &to_m);
+  from_n = 0; to_n = 0;
+  from_m = other.countValues()*2; to_m = 0;
+  h = other.getHash();
+  lowerLF = other.getLoadFactorBoundaries().first;
+  upperLF = other.getLoadFactorBoundaries().second;
+  min_m = 17;
+  from_table = new Table[from_m];
+  for(int i = 0; i < from_m; i++){
+      from_table[i] = 0;
+    }
+  to_table = 0;
+
+  for(auto p: other){
+      this->insert(p.first, p.second);
+    }
+  return *this;
+}
+
+template<typename Key, typename Value, typename Method>
+ChainingHashTable<Key, Value, Method>&
+ChainingHashTable<Key, Value, Method>::operator=(ChainingHashTable&& cht){
+  _dealloc(from_table, &from_m);
+  _dealloc(to_table, &to_m);
+  from_n = cht.from_n; to_n = cht.to_n;
+  from_m = cht.from_m; to_m = cht.to_m;
+  from_table = cht.from_table;
+  to_table = cht.to_table;
+  h = cht.h;
+  lowerLF = cht.lowerLF;
+  upperLF = cht.upperLF;
+  min_m =  cht.min_m;
+
+  cht.from_n = 0;
+  cht.from_m = 0;
+  cht.from_table = 0;
+  cht.to_n = 0;
+  cht.to_m = 0;
+  cht.to_table = 0;
+  cht.updateVersion();
+  updateVersion();
+
+  return *this;
 }
 
 template<typename Key, typename Value, typename Method>
@@ -231,7 +341,17 @@ Value& ChainingHashTable<Key, Value, Method>::operator[](const Key key){
  * Private Methods
  */
 template<typename Key, typename Value, typename Method>
+void ChainingHashTable<Key, Value, Method>::_checkContructorParameters
+(long int m, double loadFactorThreshold){
+  if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
+    throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
+  }
+}
+
+template<typename Key, typename Value, typename Method>
 void ChainingHashTable<Key, Value, Method>::_dealloc(Table* table, long int* m){
+  if(!*m)
+    return;
   for(long int i = 0; table && i<*m; i++){
       if(table[i]){
           table[i]->clear();

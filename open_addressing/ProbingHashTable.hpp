@@ -20,9 +20,27 @@ public:
   typedef PHTBidirectionalIterator_Key<Key, Value, Method> iterator_key;
   typedef PHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
+  static constexpr double DEFAULT_LF = 0.5;
+  static constexpr long int DEFAULT_M = 17;
+
   ProbingHashTable() = delete;
 
-  ProbingHashTable(Hash, double loadFactorThreshold = 0.5, long int m = 17);
+  ProbingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+
+  template<typename OtherMethod = Method>
+  ProbingHashTable(ProbingHashTable<Key, Value, OtherMethod>&,
+                    double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+
+  ProbingHashTable(ProbingHashTable&&);
+
+  template<typename OtherMethod = Method>
+  ProbingHashTable<Key, Value, Method>&
+  operator=(ProbingHashTable<Key, Value, OtherMethod>& other);
+
+  ProbingHashTable&
+  operator=(const ProbingHashTable& other) = delete;
+
+  ProbingHashTable& operator=(ProbingHashTable&& other );
 
   bool insert(const Key, const Value&, Value * = nullptr);
 
@@ -41,6 +59,15 @@ public:
   inline double loadFactor(){
     return !(to_table? to_m: from_m) ?
           0 : double(countValues())/ (to_table? to_m: from_m);
+  }
+
+  inline std::pair<double, double> getLoadFactorBoundaries() const{
+    std::pair<double,double> boundaries{lowerLF, upperLF};
+    return boundaries;
+  }
+
+  inline Hash getHash() const{
+    return h;
   }
 
   Value& operator[](const Key);
@@ -73,6 +100,8 @@ private:
   inline void updateVersion(){
     *version = *version + 1l;
   }
+
+  void _checkContructorParameters(long int, double);
 
   bool _insert(Table* table, long int* m, long int* n,
                const Key key, const Value& value,
@@ -112,6 +141,88 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
     }
   version = std::make_shared<long int>(0);
   deleted = new Pair();
+}
+
+template<typename Key, typename Value, typename Method>
+template<typename OtherMethod>
+ProbingHashTable<Key, Value, Method>::
+ProbingHashTable(ProbingHashTable<Key, Value, OtherMethod>& pht,
+                  double loadFactorThreshold, long int m)
+  : ProbingHashTable(pht.getHash(), loadFactorThreshold, m){
+  for(auto p: pht){
+      this->insert(p.first, p.second);
+    }
+}
+
+template<typename Key, typename Value, typename Method>
+ProbingHashTable<Key, Value, Method>::
+ProbingHashTable(ProbingHashTable&& pht)
+  : from_m{std::move(pht.from_m)}, to_m{std::move(pht.to_m)},
+    from_n{std::move(pht.from_n)}, to_n{std::move(pht.to_n)},
+    min_m{std::move(pht.min_m)},
+    upperLF{std::move(pht.upperLF)}, lowerLF{std::move(pht.lowerLF)},
+    h{std::move(pht.h)}, from_table{std::move(pht.from_table)},
+    to_table{std::move(pht.to_table)}, deleted{std::move(pht.deleted)}{
+  pht.from_n = 0;
+  pht.from_m = 0;
+  pht.from_table = 0;
+  pht.to_n = 0;
+  pht.to_m = 0;
+  pht.to_table = 0;
+  pht.updateVersion();
+
+  version = std::make_shared<long int>(0);
+}
+
+template<typename Key, typename Value, typename Method>
+template<typename OtherMethod>
+ProbingHashTable<Key, Value, Method>&
+ProbingHashTable<Key, Value, Method>::operator=(ProbingHashTable<Key, Value, OtherMethod>& other){
+  _dealloc(from_table, &from_m);
+  _dealloc(to_table, &to_m);
+  from_n = 0; to_n = 0;
+  from_m = other.countValues()*2; to_m = 0;
+  h = other.getHash();
+  lowerLF = other.getLoadFactorBoundaries().first;
+  upperLF = other.getLoadFactorBoundaries().second;
+  min_m = 17;
+  from_table = new Table[from_m];
+  for(int i = 0; i < from_m; i++){
+      from_table[i] = 0;
+    }
+  to_table = 0;
+
+  for(auto p: other){
+      this->insert(p.first, p.second);
+    }
+  return *this;
+}
+
+template<typename Key, typename Value, typename Method>
+ProbingHashTable<Key, Value, Method>&
+ProbingHashTable<Key, Value, Method>::operator=(ProbingHashTable&& cht){
+  _dealloc(from_table, &from_m);
+  _dealloc(to_table, &to_m);
+  from_n = cht.from_n; to_n = cht.to_n;
+  from_m = cht.from_m; to_m = cht.to_m;
+  from_table = cht.from_table;
+  to_table = cht.to_table;
+  h = cht.h;
+  lowerLF = cht.lowerLF;
+  upperLF = cht.upperLF;
+  min_m =  cht.min_m;
+  deleted = cht.deleted;
+
+  cht.from_n = 0;
+  cht.from_m = 0;
+  cht.from_table = 0;
+  cht.to_n = 0;
+  cht.to_m = 0;
+  cht.to_table = 0;
+  cht.updateVersion();
+  updateVersion();
+
+  return *this;
 }
 
 template<typename Key, typename Value, typename Method>
@@ -242,6 +353,14 @@ Value& ProbingHashTable<Key, Value, Method>::operator[](const Key key){
  */
 
 template<typename Key, typename Value, typename Method>
+void ProbingHashTable<Key, Value, Method>::_checkContructorParameters
+(long int m, double loadFactorThreshold){
+  if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
+    throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
+  }
+}
+
+template<typename Key, typename Value, typename Method>
 bool ProbingHashTable<Key, Value, Method>::_insert(Table* table, long int* m, long int* n,
              const Key key, const Value& value,
              Value* output){
@@ -251,6 +370,7 @@ bool ProbingHashTable<Key, Value, Method>::_insert(Table* table, long int* m, lo
           table[index] = new Pair(key, value);
           (*n)++;
           updateVersion();
+//          std::cout << index << " - " << key << std::endl;
           return false;
         }else if(table[index]->first == key){
           if(output != nullptr){
@@ -341,6 +461,8 @@ void ProbingHashTable<Key, Value, Method>::_alloca(int m){
 
 template<typename Key, typename Value, typename Method>
 void ProbingHashTable<Key, Value, Method>::_dealloc(Table* table, long int* m){
+  if(!*m)
+    return;
   for(long int i = 0; table && i<*m; i++){
       if(table[i] != nullptr && table[i] != deleted){
           delete table[i];
