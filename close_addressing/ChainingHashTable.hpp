@@ -203,14 +203,14 @@ ChainingHashTable<Key, Value, Method>&
 ChainingHashTable<Key, Value, Method>::operator=(ChainingHashTable&& cht){
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
-  from_n = cht.from_n; to_n = cht.to_n;
-  from_m = cht.from_m; to_m = cht.to_m;
-  from_table = cht.from_table;
-  to_table = cht.to_table;
-  h = cht.h;
-  lowerLF = cht.lowerLF;
-  upperLF = cht.upperLF;
-  min_m =  cht.min_m;
+  from_n = std::move(cht.from_n); to_n = std::move(cht.to_n);
+  from_m = std::move(cht.from_m); to_m = std::move(cht.to_m);
+  from_table = std::move(cht.from_table);
+  to_table = std::move(cht.to_table);
+  h = std::move(cht.h);
+  lowerLF = std::move(cht.lowerLF);
+  upperLF = std::move(cht.upperLF);
+  min_m =  std::move(cht.min_m);
 
   cht.from_n = 0;
   cht.from_m = 0;

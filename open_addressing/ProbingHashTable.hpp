@@ -203,15 +203,17 @@ ProbingHashTable<Key, Value, Method>&
 ProbingHashTable<Key, Value, Method>::operator=(ProbingHashTable&& cht){
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
-  from_n = cht.from_n; to_n = cht.to_n;
-  from_m = cht.from_m; to_m = cht.to_m;
-  from_table = cht.from_table;
-  to_table = cht.to_table;
-  h = cht.h;
-  lowerLF = cht.lowerLF;
-  upperLF = cht.upperLF;
-  min_m =  cht.min_m;
-  deleted = cht.deleted;
+  delete deleted;
+
+  from_n = std::move(cht.from_n); to_n = std::move(cht.to_n);
+  from_m = std::move(cht.from_m); to_m = std::move(cht.to_m);
+  from_table = std::move(cht.from_table);
+  to_table = std::move(cht.to_table);
+  h = std::move(cht.h);
+  lowerLF = std::move(cht.lowerLF);
+  upperLF = std::move(cht.upperLF);
+  min_m =  std::move(cht.min_m);
+  deleted = std::move(cht.deleted);
 
   cht.from_n = 0;
   cht.from_m = 0;
@@ -334,9 +336,10 @@ ProbingHashTable<Key, Value, Method>::end_value(){
 template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::~ProbingHashTable(){
   updateVersion();
+  if(from_m)
+    delete deleted;
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
-  delete deleted;
 }
 
 template<typename Key, typename Value, typename Method>
@@ -370,7 +373,6 @@ bool ProbingHashTable<Key, Value, Method>::_insert(Table* table, long int* m, lo
           table[index] = new Pair(key, value);
           (*n)++;
           updateVersion();
-//          std::cout << index << " - " << key << std::endl;
           return false;
         }else if(table[index]->first == key){
           if(output != nullptr){
