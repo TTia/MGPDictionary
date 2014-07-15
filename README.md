@@ -1,7 +1,7 @@
 # MGPDictionary
 Progetto didattico, sviluppato per il corso di MGP -Modular and Generic Programming- dei professori Davide Ancona e Giovanni Lagorio durante l'a.a. 2013/2014 presso la facoltà di Informatica - DIBRIS - UNIGE.
 ### Obbiettivi del progetto
-L'obbiettivo del progetto è l'approfondimento delle meccaniche del C++, con particolare attenzione alla Standard Template Library e alla libreria di Boost -versione 1.55-, per l'implementazione di degli iteratori e l'uso dei concept.
+L'obiettivo del progetto è l'approfondimento delle meccaniche del C++, con particolare attenzione alla Standard Template Library e alla libreria di Boost -versione 1.55-, per l'implementazione di degli iteratori e l'uso dei concept.
 #### L'interfaccia
 Nonostante all'interno della libreria sviluppata sia assente un'interfaccia comune per le diverse implementazione dei dizionari disponibile, sono individuabili le tre operazioni standard: *insert*, *search* e *delete*.
 
