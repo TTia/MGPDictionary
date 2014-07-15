@@ -17,7 +17,7 @@ TEST_F(GTest_ProbingHashTable, Copy_Constructor) {
   ProbingHashTable<int, char> pht{h};
   pht.insert(1, 'a');
 
-  ProbingHashTable<int, char> pht2{pht};
+  ProbingHashTable<int, char> pht2(pht);
   pht2.insert(2, 'b');
   ASSERT_EQ(1, pht.countValues());
   ASSERT_EQ(2, pht2.countValues());

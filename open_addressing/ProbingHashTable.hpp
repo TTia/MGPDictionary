@@ -31,6 +31,8 @@ public:
   ProbingHashTable(ProbingHashTable<Key, Value, OtherMethod>&,
                     double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
 
+//  ProbingHashTable(ProbingHashTable&);
+
   ProbingHashTable(ProbingHashTable&&);
 
   template<typename OtherMethod = Method>
@@ -214,6 +216,7 @@ ProbingHashTable<Key, Value, Method>::operator=(ProbingHashTable&& cht){
   upperLF = std::move(cht.upperLF);
   min_m =  std::move(cht.min_m);
   deleted = std::move(cht.deleted);
+  pm = std::move(cht.pm);
 
   cht.from_n = 0;
   cht.from_m = 0;

@@ -2,11 +2,27 @@
 #define PROBING_HPP
 
 #include "Hashing.hpp"
+#include <memory>
 
 class ProbingMethod{
 public:
   ProbingMethod(HashingMethod hm): hm{&hm}{}
   ProbingMethod(): hm{new DivisionMethod()}{}
+
+  ProbingMethod(const ProbingMethod& other) = delete;
+  ProbingMethod(ProbingMethod&& other){
+    delete this->hm;
+    hm = std::move(other.hm);
+    other.hm = nullptr;
+  }
+  ProbingMethod& operator=(const ProbingMethod& other) = delete;
+  ProbingMethod& operator=(ProbingMethod&& other){
+    delete this->hm;
+    this->hm = std::move(other.hm);
+    other.hm = nullptr;
+    return *this;
+  }
+
   virtual long int probe(long int i, long int m, long int k) const = 0;
   long int operator()(long int i, const long int m, const long int k) const{
     return this->probe(i,m,k);
