@@ -29,13 +29,16 @@ public:
 
   ChainingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
 
+  ChainingHashTable(ChainingHashTable<Key, Value, Method>&/*,
+                    double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M*/);
+
   template<typename OtherMethod = Method>
   ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>&,
                     double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
 
   ChainingHashTable(ChainingHashTable&&);
 
-  Value& operator[](const Key);
+//  Value& operator[](const Key);
 
   template<typename OtherMethod = Method>
   ChainingHashTable<Key, Value, Method>&
@@ -48,21 +51,22 @@ public:
 
   bool insert(const Key, const Value&, Value* = nullptr);
 
-  bool del(const Key, Value* = nullptr);
+//  bool del(const Key, Value* = nullptr);
 
   iterator search(const Key);
 
   iterator begin();
 
-  iterator_key begin_key();
 
-  iterator_value begin_value();
+//  iterator_key begin_key();
+
+//  iterator_value begin_value();
 
   iterator end();
 
-  iterator_key end_key();
+//  iterator_key end_key();
 
-  iterator_value end_value();
+//  iterator_value end_value();
 
   ~ChainingHashTable();
 
@@ -83,12 +87,12 @@ public:
     return h;
   }
 
-  inline std::pair<double, double> getLoadFactorBoundaries() const{
-    std::pair<double,double> boundaries{lowerLF, upperLF};
-    return boundaries;
-  }
+//  inline std::pair<double, double> getLoadFactorBoundaries() const{
+//    std::pair<double,double> boundaries{lowerLF, upperLF};
+//    return boundaries;
+//  }
 
-private:
+protected:
   typedef std::vector<std::pair<Key, Value>> __vector;
 
   long int from_m, to_m, from_n, to_n;
@@ -146,11 +150,24 @@ template<typename OtherMethod>
 ChainingHashTable<Key, Value, Method>::
 ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>& cht,
                   double loadFactorThreshold, long int m)
-  : ChainingHashTable(cht.h, loadFactorThreshold, m){
+//  : ChainingHashTable(cht){
+//  : ChainingHashTable(cht.h, loadFactorThreshold, m){
+  : ChainingHashTable(cht.getHash(), loadFactorThreshold, m){
+  for(auto p: cht){
+      this->insert(p.first, p.second);
+//      this->_insert(from_table, &from_m, &from_m, p.first, p.second, nullptr);
+    }
+}
+
+template<typename Key, typename Value, typename Method>
+ChainingHashTable<Key, Value, Method>::
+ChainingHashTable(ChainingHashTable<Key, Value, Method>& cht)
+: ChainingHashTable(cht.h, cht.upperLF, cht.to_table? cht.to_m: cht.from_m){
   if(this == &cht)
     return;
   for(auto p: cht){
       this->insert(p.first, p.second);
+//      this->_insert(from_table, &from_m, &from_m, p.first, p.second, nullptr);
     }
 }
 
@@ -227,27 +244,27 @@ ChainingHashTable<Key, Value, Method>::operator=(ChainingHashTable&& cht){
 template<typename Key, typename Value, typename Method>
 bool ChainingHashTable<Key, Value, Method>::insert(const Key key, const Value &value, Value* output){
   if(loadFactor() > upperLF && !to_table){
-      _enlargeTable();
+      this->_enlargeTable();
     }
   if(to_table){
-      _rehash(rehashThreshold());
+      this->_rehash(this->rehashThreshold());
     }
   updateVersion();
   return to_table ? _insert(to_table, &to_m, &to_n, key, value, output) :
                     _insert(from_table, &from_m, &from_n, key, value, output);
 }
 
-template<typename Key, typename Value, typename Method>
-bool ChainingHashTable<Key, Value, Method>::del(const Key key, Value* output){
-  if(loadFactor() < lowerLF && !to_table){
-      _shrinkTable();
-    }
-  if(to_table){
-      _rehash(rehashThreshold());
-    }
-  return _del(from_table, &from_m, &from_n, key, output) ||
-          (to_table && _del(to_table, &to_m, &to_n, key, output));
-}
+//template<typename Key, typename Value, typename Method>
+//bool ChainingHashTable<Key, Value, Method>::del(const Key key, Value* output){
+//  if(loadFactor() < lowerLF && !to_table){
+//      _shrinkTable();
+//    }
+//  if(to_table){
+//      _rehash(rehashThreshold());
+//    }
+//  return _del(from_table, &from_m, &from_n, key, output) ||
+//          (to_table && _del(to_table, &to_m, &to_n, key, output));
+//}
 
 template<typename Key, typename Value, typename Method>
 typename ChainingHashTable<Key, Value, Method>::iterator
@@ -267,10 +284,12 @@ ChainingHashTable<Key, Value, Method>::search(const Key key){
     }
   return this->end();
 }
+
 template<typename Key, typename Value, typename Method>
 typename ChainingHashTable<Key, Value, Method>::iterator
 ChainingHashTable<Key, Value, Method>::begin(){
-  if(!countValues())
+//  if(!countValues())
+  if(!(to_n+from_n))
     return this->end();
   if(to_table)
     _rehash(from_n);
@@ -278,27 +297,28 @@ ChainingHashTable<Key, Value, Method>::begin(){
   return it;
 }
 
-template<typename Key, typename Value, typename Method>
-typename ChainingHashTable<Key, Value, Method>::iterator_key
-ChainingHashTable<Key, Value, Method>::begin_key(){
-  if(!countValues())
-    return this->end_key();
-  if(to_table)
-    _rehash(from_n);
-  iterator_key it(this);
-  return it;
-}
+//template<typename Key, typename Value, typename Method>
+//typename ChainingHashTable<Key, Value, Method>::iterator_key
+//ChainingHashTable<Key, Value, Method>::begin_key(){
+////  if(!countValues())
+// if(!(to_n+from_n))
+//    return this->end_key();
+//  if(to_table)
+//    _rehash(from_n);
+//  iterator_key it(this);
+//  return it;
+//}
 
-template<typename Key, typename Value, typename Method>
-typename ChainingHashTable<Key, Value, Method>::iterator_value
-ChainingHashTable<Key, Value, Method>::begin_value(){
-  if(!countValues())
-    return this->end_value();
-  if(to_table)
-    _rehash(from_n);
-  iterator_value it(this);
-  return it;
-}
+//template<typename Key, typename Value, typename Method>
+//typename ChainingHashTable<Key, Value, Method>::iterator_value
+//ChainingHashTable<Key, Value, Method>::begin_value(){
+//  if(!(to_n+from_n))
+//    return this->end_value();
+//  if(to_table)
+//    _rehash(from_n);
+//  iterator_value it(this);
+//  return it;
+//}
 
 template<typename Key, typename Value, typename Method>
 typename ChainingHashTable<Key, Value, Method>::iterator
@@ -307,19 +327,19 @@ ChainingHashTable<Key, Value, Method>::end(){
   return it;
 }
 
-template<typename Key, typename Value, typename Method>
-typename ChainingHashTable<Key, Value, Method>::iterator_key
-ChainingHashTable<Key, Value, Method>::end_key(){
-  iterator_key it(this, -1);
-  return it;
-}
+//template<typename Key, typename Value, typename Method>
+//typename ChainingHashTable<Key, Value, Method>::iterator_key
+//ChainingHashTable<Key, Value, Method>::end_key(){
+//  iterator_key it(this, -1);
+//  return it;
+//}
 
-template<typename Key, typename Value, typename Method>
-typename ChainingHashTable<Key, Value, Method>::iterator_value
-ChainingHashTable<Key, Value, Method>::end_value(){
-  iterator_value it(this, -1);
-  return it;
-}
+//template<typename Key, typename Value, typename Method>
+//typename ChainingHashTable<Key, Value, Method>::iterator_value
+//ChainingHashTable<Key, Value, Method>::end_value(){
+//  iterator_value it(this, -1);
+//  return it;
+//}
 
 template<typename Key, typename Value, typename Method>
 ChainingHashTable<Key, Value, Method>::~ChainingHashTable(){
@@ -328,14 +348,14 @@ ChainingHashTable<Key, Value, Method>::~ChainingHashTable(){
   _dealloc(to_table, &to_m);
 }
 
-template<typename Key, typename Value, typename Method>
-Value& ChainingHashTable<Key, Value, Method>::operator[](const Key key){
-  iterator it = this->search(key);
-  if(it == this->end()){
-      throw std::out_of_range("No such key.");
-    }
-  return (*it).second;
-}
+//template<typename Key, typename Value, typename Method>
+//Value& ChainingHashTable<Key, Value, Method>::operator[](const Key key){
+//  iterator it = this->search(key);
+//  if(it == this->end()){
+//      throw std::out_of_range("No such key.");
+//    }
+//  return (*it).second;
+//}
 
 /*
  * Private Methods

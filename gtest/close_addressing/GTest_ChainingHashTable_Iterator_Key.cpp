@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "close_addressing/ChainingHashTable.hpp"
+#include "close_addressing/CloseAddressing.hpp"
 #include "close_addressing/ChainingHashTableIterator.hpp"
 
 #include <stdexcept>
@@ -8,7 +8,7 @@ class GTest_Iterator_Key : public ::testing::Test {};
 
 TEST_F(GTest_Iterator_Key, Iterator_over_empty_table) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h, .5};
+  CloseAddressingDictionary<int, char> cht{h, .5};
 
   for(auto it = cht.begin_key(); it != cht.end_key(); it++){
         ASSERT_TRUE(false);
@@ -18,7 +18,7 @@ TEST_F(GTest_Iterator_Key, Iterator_over_empty_table) {
 
 TEST_F(GTest_Iterator_Key, Iterate_over_table_Forward_order) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h, .5};
+  CloseAddressingDictionary<int, char> cht{h, .5};
   char a = 'a';
   cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
 
@@ -32,7 +32,7 @@ TEST_F(GTest_Iterator_Key, Iterate_over_table_Forward_order) {
 TEST_F(GTest_Iterator_Key, Iterate_over_table_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a';
   cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
   cht.insert(m+1,a);
@@ -47,7 +47,7 @@ TEST_F(GTest_Iterator_Key, Iterate_over_table_Forward_order_Chain) {
 TEST_F(GTest_Iterator_Key, Iterate_over_table_Iterator_explicit_position) {
   std::hash<int> h;
   int m = 17;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a';
   cht.insert(1,a); cht.insert(m+1,a); cht.insert(16,a);
 
@@ -70,7 +70,7 @@ TEST_F(GTest_Iterator_Key, Iterate_over_table_Iterator_explicit_position) {
 
 TEST_F(GTest_Iterator_Key, Iterate_over_table_Operator_elision) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h, .5};
+  CloseAddressingDictionary<int, char> cht{h, .5};
   char a = 'a';
   cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
   auto it = cht.begin();

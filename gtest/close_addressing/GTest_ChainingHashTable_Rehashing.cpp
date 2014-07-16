@@ -1,13 +1,13 @@
 #include "gtest/gtest.h"
-#include "close_addressing/ChainingHashTable.hpp"
+#include "close_addressing/CloseAddressing.hpp"
 
 #include <stdexcept>
 
-class GTest_ChainingHashTable_Rehashing : public ::testing::Test {};
+class GTest_CloseAddressingDictionary_Rehashing : public ::testing::Test {};
 
-TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_1_Time) {
+TEST_F(GTest_CloseAddressingDictionary_Rehashing, Enlarging_1_Time) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht(h, .5, 16);
+  CloseAddressingDictionary<int, char> cht(h, .5, 16);
   ASSERT_EQ(0, cht.loadFactor());
   for(int i = 0; i<7; i++){
       cht.insert(i, 'a');
@@ -22,9 +22,9 @@ TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_1_Time) {
   ASSERT_EQ(14.0/32, cht.loadFactor());
 }
 
-TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_3_Times) {
+TEST_F(GTest_CloseAddressingDictionary_Rehashing, Enlarging_3_Times) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht(h, .5, 16);
+  CloseAddressingDictionary<int, char> cht(h, .5, 16);
   ASSERT_EQ(0, cht.loadFactor());
   for(int i = 0; i<65; i++){
       cht.insert(i, 'a');
@@ -34,9 +34,9 @@ TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_3_Times) {
   ASSERT_EQ(65.0/128, cht.loadFactor());
 }
 
-TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
+TEST_F(GTest_CloseAddressingDictionary_Rehashing, Enlarging_3_Times_And_clear) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht(h, .5, 16);
+  CloseAddressingDictionary<int, char> cht(h, .5, 16);
   ASSERT_EQ(0, cht.loadFactor());
   for(int i = 0; i<65; i++){
       cht.insert(i, 'a');
@@ -52,9 +52,9 @@ TEST_F(GTest_ChainingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
   ASSERT_EQ(1.0/16, cht.loadFactor());
 }
 
-TEST_F(GTest_ChainingHashTable_Rehashing, Search_causes_complete_rehashing) {
+TEST_F(GTest_CloseAddressingDictionary_Rehashing, Search_causes_complete_rehashing) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht(h, .5, 16);
+  CloseAddressingDictionary<int, char> cht(h, .5, 16);
   for(int i = 0; i<10; i++){
       cht.insert(i, 'a');
     }

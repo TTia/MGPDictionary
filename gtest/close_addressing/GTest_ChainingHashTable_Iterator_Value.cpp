@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "close_addressing/ChainingHashTable.hpp"
+#include "close_addressing/CloseAddressing.hpp"
 #include "close_addressing/ChainingHashTableIterator.hpp"
 
 #include <stdio.h>
@@ -10,7 +10,7 @@ class GTest_Iterator_Values : public ::testing::Test {};
 
 TEST_F(GTest_Iterator_Values, Iterator_over_empty_cht) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
 
   for(auto it = cht.begin_value(); it != cht.end_value(); it++){
         ASSERT_TRUE(false);
@@ -20,7 +20,7 @@ TEST_F(GTest_Iterator_Values, Iterator_over_empty_cht) {
 
 TEST_F(GTest_Iterator_Values, Iterate_over_cht_Forward_order) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a', b = 'b', c = 'c', result[4] = "";
   int i = 0;
   cht.insert(1,a); cht.insert(2,b); cht.insert(3,c);
@@ -35,7 +35,7 @@ TEST_F(GTest_Iterator_Values, Iterate_over_cht_Forward_order) {
 TEST_F(GTest_Iterator_Values, Iterate_over_cht_Forward_order_Chain) {
   std::hash<int> h;
   int m = 17;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a', b = 'b', c = 'c', d = 'd', result[5] = "";
   int i = 0;
   cht.insert(1,a); cht.insert(2,b); cht.insert(3,c);
@@ -51,7 +51,7 @@ TEST_F(GTest_Iterator_Values, Iterate_over_cht_Forward_order_Chain) {
 TEST_F(GTest_Iterator_Values, Iterate_over_cht_Iterator_explicit_position) {
   std::hash<int> h;
   int m = 17;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a', b = 'b', c = 'c';
   cht.insert(1,a); cht.insert(m+1,b); cht.insert(16,c);
   CHTBidirectionalIterator_Value<int, char> it_1(&cht, 1, 0);
@@ -73,7 +73,7 @@ TEST_F(GTest_Iterator_Values, Iterate_over_cht_Iterator_explicit_position) {
 
 TEST_F(GTest_Iterator_Values, Iterate_over_cht_Operator_elision) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   cht.insert(1,a); cht.insert(2,a); cht.insert(3,a);
   auto it = cht.begin_value();

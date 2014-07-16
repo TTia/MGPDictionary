@@ -1,24 +1,25 @@
 #include "gtest/gtest.h"
-#include "close_addressing/ChainingHashTable.hpp"
+#include "close_addressing/CloseAddressing.hpp"
 #include "close_addressing/ChainingHashTableIterator.hpp"
+#include "Hashing.hpp"
 
 #include <stdexcept>
 
-class GTest_ChainingHashTable : public ::testing::Test {};
+class GTest_CloseAddressingDictionary : public ::testing::Test {};
 
-TEST_F(GTest_ChainingHashTable, Constructor) {
+TEST_F(GTest_CloseAddressingDictionary, Constructor) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   EXPECT_EQ(cht.countValues(), 0);
   EXPECT_EQ(cht.loadFactor(), 0);
 }
 
-TEST_F(GTest_ChainingHashTable, Copy_Constructor) {
+TEST_F(GTest_CloseAddressingDictionary, Copy_Constructor_Same_Method) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   cht.insert(1, 'a');
 
-  ChainingHashTable<int, char> cht2{cht};
+  CloseAddressingDictionary<int, char> cht2{cht};
   cht2.insert(2, 'b');
   ASSERT_EQ(1, cht.countValues());
   ASSERT_EQ(2, cht2.countValues());
@@ -31,20 +32,38 @@ TEST_F(GTest_ChainingHashTable, Copy_Constructor) {
   cht2.del(3);
 }
 
-TEST_F(GTest_ChainingHashTable, Move_Constructor) {
+TEST_F(GTest_CloseAddressingDictionary, Copy_Constructor_Different_Method) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   cht.insert(1, 'a');
 
-  ChainingHashTable<int, char> cht2{std::move(cht)};
+  CloseAddressingDictionary<int, char, UniversalMethod> cht2{cht};
+  cht2.insert(2, 'b');
+  ASSERT_EQ(1, cht.countValues());
+  ASSERT_EQ(2, cht2.countValues());
+
+  cht[1] = 'd';
+  ASSERT_EQ((*cht.search(1)).second, 'd');
+  ASSERT_EQ((*cht2.search(1)).second, 'a');
+  cht2.insert(3, 'c');
+  cht2.search(3);
+  cht2.del(3);
+}
+
+TEST_F(GTest_CloseAddressingDictionary, Move_Constructor) {
+  std::hash<int> h;
+  CloseAddressingDictionary<int, char> cht{h};
+  cht.insert(1, 'a');
+
+  CloseAddressingDictionary<int, char> cht2{std::move(cht)};
   cht2.insert(2, 'b');
   ASSERT_EQ(2, cht2.countValues());
 }
 
-TEST_F(GTest_ChainingHashTable, Copy_Operator) {
+TEST_F(GTest_CloseAddressingDictionary, Copy_Operator) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
-  ChainingHashTable<int, char, KnuthDivisionMethod> cht2{h};
+  CloseAddressingDictionary<int, char> cht{h};
+  CloseAddressingDictionary<int, char, KnuthDivisionMethod> cht2{h};
   cht.insert(1, 'a');
 
   cht2 = cht;
@@ -54,10 +73,10 @@ TEST_F(GTest_ChainingHashTable, Copy_Operator) {
 
 }
 
-TEST_F(GTest_ChainingHashTable, Copy_Move_Operator) {
+TEST_F(GTest_CloseAddressingDictionary, Copy_Move_Operator) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
-  ChainingHashTable<int, char> cht2{h};
+  CloseAddressingDictionary<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht2{h};
   cht.insert(1, 'a');
 
   cht2 = std::move(cht);
@@ -65,27 +84,27 @@ TEST_F(GTest_ChainingHashTable, Copy_Move_Operator) {
   ASSERT_EQ(2, cht2.countValues());
 }
 
-TEST_F(GTest_ChainingHashTable, Constructor_illegal_parameters) {
+TEST_F(GTest_CloseAddressingDictionary, Constructor_illegal_parameters) {
   std::hash<int> h;
   try{
-    ChainingHashTable<int, char> cht{h, 1.2, -1};
+    CloseAddressingDictionary<int, char> cht{h, 1.2, -1};
     ASSERT_TRUE(false);
   }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
 }
 
-TEST_F(GTest_ChainingHashTable, Insert_single) {
+TEST_F(GTest_CloseAddressingDictionary, Insert_single) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
 
   ASSERT_FALSE(cht.insert(1,'a'));
   ASSERT_EQ(cht.countValues(), 1);
 }
 
-TEST_F(GTest_ChainingHashTable, Insert_with_duplication) {
+TEST_F(GTest_CloseAddressingDictionary, Insert_with_duplication) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a', b = 'b', c = 'c';
   char output;
 
@@ -100,19 +119,19 @@ TEST_F(GTest_ChainingHashTable, Insert_with_duplication) {
   ASSERT_EQ(cht.countValues(), 2);
 }
 
-TEST_F(GTest_ChainingHashTable, Search) {
+TEST_F(GTest_CloseAddressingDictionary, Search) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   std::pair<int, char> p1{1,a};
   cht.insert(p1.first, p1.second);
   ASSERT_EQ(*cht.search(1), p1);
 }
 
-TEST_F(GTest_ChainingHashTable, Search_over_chain) {
+TEST_F(GTest_CloseAddressingDictionary, Search_over_chain) {
   std::hash<int> h;
   int m = 13;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a', b = 'b', c = 'c';
   std::pair<int, char> p1{1,a}, p2{m+1, b}, p3{2*m+1, c};
   cht.insert(p1.first, p1.second);
@@ -123,16 +142,16 @@ TEST_F(GTest_ChainingHashTable, Search_over_chain) {
   ASSERT_EQ(*cht.search(p3.first), p3);
 }
 
-TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_on_empty_table) {
+TEST_F(GTest_CloseAddressingDictionary, Search_element_doesnt_exist_on_empty_table) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   ASSERT_EQ(cht.search(1), cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist) {
+TEST_F(GTest_CloseAddressingDictionary, Search_element_doesnt_exist) {
   std::hash<int> h;
   int m = 10;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a';
   std::pair<int, char> p1{2*m+1,a};
   cht.insert(p1.first, p1.second);
@@ -140,10 +159,10 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist) {
   ASSERT_EQ(cht.search(2*m), cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_Extended) {
+TEST_F(GTest_CloseAddressingDictionary, Search_element_doesnt_exist_Extended) {
   std::hash<int> h;
   int m = 1000;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a';
   for(int i = 0; i<100; i++){
       std::pair<int, char> p1{i,a};
@@ -154,9 +173,9 @@ TEST_F(GTest_ChainingHashTable, Search_element_doesnt_exist_Extended) {
   ASSERT_EQ(cht.search(100), cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Delete_single) {
+TEST_F(GTest_CloseAddressingDictionary, Delete_single) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a', output;
   cht.insert(0, a);
   ASSERT_EQ(cht.countValues(), 1);
@@ -165,10 +184,10 @@ TEST_F(GTest_ChainingHashTable, Delete_single) {
   ASSERT_EQ(cht.countValues(), 0);
 }
 
-TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
+TEST_F(GTest_CloseAddressingDictionary, Delete_over_chain) {
   std::hash<int> h;
   int m = 13;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a', b = 'b', c = 'c';
   std::pair<int, char> p1{1,a}, p2{m+1, b}, p3{2*m+1, c};
   cht.insert(p1.first, p1.second);
@@ -187,16 +206,16 @@ TEST_F(GTest_ChainingHashTable, Delete_over_chain) {
   ASSERT_EQ(cht.countValues(), 1);
 }
 
-TEST_F(GTest_ChainingHashTable, Delete_non_existing_element) {
+TEST_F(GTest_CloseAddressingDictionary, Delete_non_existing_element) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   ASSERT_EQ(cht.countValues(), 0);
   ASSERT_FALSE(cht.del(17));
 }
 
-TEST_F(GTest_ChainingHashTable, Operator_Square_Bracket) {
+TEST_F(GTest_CloseAddressingDictionary, Operator_Square_Bracket) {
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   cht.insert(1, a);
 
@@ -209,9 +228,9 @@ TEST_F(GTest_ChainingHashTable, Operator_Square_Bracket) {
   }
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
+TEST_F(GTest_CloseAddressingDictionary, Invalidate_iterator_Insert){
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   cht.insert(1, a);
   auto it = cht.begin();
@@ -221,9 +240,9 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Insert){
   ASSERT_EQ(it, cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
+TEST_F(GTest_CloseAddressingDictionary, Invalidate_iterator_Remove){
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   cht.insert(1, a);
   cht.insert(2, a);
@@ -234,9 +253,9 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Remove){
   ASSERT_EQ(it, cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Fail_to_remove){
+TEST_F(GTest_CloseAddressingDictionary, Invalidate_iterator_Fail_to_remove){
   std::hash<int> h;
-  ChainingHashTable<int, char> cht{h};
+  CloseAddressingDictionary<int, char> cht{h};
   char a = 'a';
   cht.insert(1, a);
   cht.insert(2, a);
@@ -247,10 +266,10 @@ TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Fail_to_remove){
   ASSERT_NE(it, cht.end());
 }
 
-TEST_F(GTest_ChainingHashTable, Invalidate_iterator_Delete){
+TEST_F(GTest_CloseAddressingDictionary, Invalidate_iterator_Delete){
   std::hash<int> h;
   int m = 17;
-  ChainingHashTable<int, char> cht{h, .5, m};
+  CloseAddressingDictionary<int, char> cht{h, .5, m};
   char a = 'a';
   cht.insert(1, a);
 
