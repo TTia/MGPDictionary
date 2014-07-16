@@ -3,6 +3,8 @@
 
 #include "ChainingHashTableIterator.hpp"
 #include "Hashing.hpp"
+#include "Core.hpp"
+#include "Default.hpp"
 
 #include <iostream>
 #include <vector>
@@ -22,18 +24,15 @@ public:
   typedef CHTBidirectionalIterator_Key<Key, Value, Method> iterator_key;
   typedef CHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
-  static constexpr double DEFAULT_LF = 0.5;
-  static constexpr long int DEFAULT_M = 17;
-
-  ChainingHashTable() = delete;
-
-  ChainingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+  ChainingHashTable(Hash, double loadFactorThreshold = DefaultValues::DEFAULT_UPPERLF,
+                    long int m = DefaultValues::DEFAULT_M);
 
   ChainingHashTable(ChainingHashTable&);
 
   template<typename OtherMethod = Method>
   ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>&,
-                    double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+                    double loadFactorThreshold = DefaultValues::DEFAULT_UPPERLF,
+                    long int m = DefaultValues::DEFAULT_M);
 
   ChainingHashTable(ChainingHashTable&&);
 
@@ -54,7 +53,7 @@ public:
   ~ChainingHashTable();
 
   inline int rehashThreshold(){
-    return (to_table? to_m: from_m) * 0.10;
+    return (to_table? to_m: from_m) * _rehashThreshold;
   }
 
   inline int countValues() const{
@@ -76,6 +75,7 @@ protected:
   long int from_m, to_m, from_n, to_n;
   long int min_m;
   double upperLF, lowerLF;
+  double _rehashThreshold;
   Hash h;
   Method hm;
   Table *from_table, *to_table;
@@ -94,8 +94,6 @@ protected:
   bool _del(Table* table, long int* m, long int* n,
             const Key key, Value* output);
 
-  void _shrinkTable();
-
   void _enlargeTable();
 
   void _rehash(int k);
@@ -113,6 +111,7 @@ template<typename Key, typename Value, typename Method>
 ChainingHashTable<Key, Value, Method>::ChainingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
+  _rehashThreshold{DefaultValues::REHASH_THRESHOLD_DEFAULT},
   h{h}, to_table{nullptr} {
   _checkContructorParameters(m, loadFactorThreshold);
 
@@ -333,16 +332,6 @@ void ChainingHashTable<Key, Value, Method>::_rehash(int k){
 template<typename Key, typename Value, typename Method>
 void ChainingHashTable<Key, Value, Method>::_enlargeTable(){
   to_m = from_m * 2;
-  to_n = 0;
-  _alloca(to_m);
-}
-
-template<typename Key, typename Value, typename Method>
-void ChainingHashTable<Key, Value, Method>::_shrinkTable(){
-  if(from_m <= min_m){
-      return;
-    }
-  to_m = from_m / 2;
   to_n = 0;
   _alloca(to_m);
 }

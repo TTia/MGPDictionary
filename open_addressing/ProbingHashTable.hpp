@@ -3,6 +3,8 @@
 
 #include "ProbingHashTableIterator.hpp"
 #include "Probing.hpp"
+#include "Core.hpp"
+#include "Default.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -20,16 +22,14 @@ public:
   typedef PHTBidirectionalIterator_Key<Key, Value, Method> iterator_key;
   typedef PHTBidirectionalIterator_Value<Key, Value, Method> iterator_value;
 
-  static constexpr double DEFAULT_LF = 0.5;
-  static constexpr long int DEFAULT_M = 17;
-
-  ProbingHashTable() = delete;
-
-  ProbingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+  ProbingHashTable(Hash,
+                   double loadFactorThreshold = DefaultValues::DEFAULT_UPPERLF,
+                   long int m = DefaultValues::DEFAULT_M);
 
   template<typename OtherMethod = Method>
   ProbingHashTable(ProbingHashTable<Key, Value, OtherMethod>&,
-                    double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
+                    double loadFactorThreshold = DefaultValues::DEFAULT_UPPERLF,
+                   long int m = DefaultValues::DEFAULT_M);
 
   ProbingHashTable(ProbingHashTable&);
 
@@ -49,7 +49,7 @@ public:
   iterator search(const Key);
 
   inline int rehashThreshold(){
-    return (to_table? to_m: from_m) * 0.10;
+    return (to_table? to_m: from_m) * _rehashThreshold;
   }
 
   inline int countValues(){
@@ -80,6 +80,7 @@ protected:
   long int from_m, to_m, from_n, to_n;
   long int min_m;
   double upperLF, lowerLF;
+  double _rehashThreshold;
   Hash h;
   Method pm;
   Table *from_table, *to_table;
@@ -100,8 +101,6 @@ protected:
   bool _del(Table* table, long int* m, long int* n,
             const Key key, Value* output);
 
-  void _shrinkTable();
-
   void _enlargeTable();
 
   void _rehash(int k);
@@ -119,8 +118,9 @@ protected:
 template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactorThreshold, long int m):
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
-  upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30}, h{h},
-  from_table{nullptr}, to_table{nullptr}{
+  upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
+  _rehashThreshold{DefaultValues::REHASH_THRESHOLD_DEFAULT},
+  h{h}, from_table{nullptr}, to_table{nullptr}{
   if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
       throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
     }
@@ -343,16 +343,6 @@ bool ProbingHashTable<Key, Value, Method>::_del(Table* table,
         }
     }
   return false;
-}
-
-template<typename Key, typename Value, typename Method>
-void ProbingHashTable<Key, Value, Method>::_shrinkTable(){
-  if(from_m <= min_m){
-      return;
-    }
-  to_m = from_m / 2;
-  to_n = 0;
-  _alloca(to_m);
 }
 
 template<typename Key, typename Value, typename Method>

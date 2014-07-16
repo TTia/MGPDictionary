@@ -62,3 +62,20 @@ TEST_F(GTest_CloseAddressingDictionary_Rehashing, Search_causes_complete_rehashi
   cht.search(1);
   ASSERT_EQ(10.0/32, cht.loadFactor());
 }
+
+TEST_F(GTest_CloseAddressingDictionary_Rehashing, Force_Rehash){
+  std::hash<int> h;
+  int m = 128;
+  CloseAddressingDictionary<int, char> cht(h, .5, m);
+  for(int i = 0; i<m/2; i++){
+      cht.insert(i, 'a');
+    }
+  ASSERT_EQ(.5, cht.loadFactor());
+  cht.forceRehash(-1);
+  cht.forceRehash();
+  for(int i = 0; i<10; i++){
+      cht.insert(i+m/2, 'a');
+    }
+  cht.forceRehash(1);
+  ASSERT_EQ(0.2890625, cht.loadFactor());
+}

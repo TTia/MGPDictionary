@@ -33,7 +33,8 @@ HEADERS += \
     open_addressing/ProbingHashTableIterator.hpp \
     close_addressing/CloseAddressing.hpp \
     Core.hpp \
-    open_addressing/OpenAddressing.hpp
+    open_addressing/OpenAddressing.hpp \
+    Default.hpp
 
 OTHER_FILES += \
     README.md

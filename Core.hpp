@@ -1,6 +1,10 @@
 #ifndef CORE_HPP
 #define CORE_HPP
 
+#include "Default.hpp"
+#include <exception>
+#include <stdexcept>
+
 template <typename Dictionary, typename Key, typename Value, typename Method>
 class Core: public Dictionary{
 public:
@@ -25,8 +29,16 @@ public:
 
   Value& operator[](const Key);
 
+  void forceRehash(double = 1);
+
+  void setRehashThreshold(double = DefaultValues::REHASH_THRESHOLD_DEFAULT);
+
+  void setLoadFactorBoundaries(double = DefaultValues::DEFAULT_LOWERLF,
+                               double = DefaultValues::DEFAULT_UPPERLF);
+
 private:
 
+  void _shrinkTable();
 };
 
 /*
@@ -90,8 +102,48 @@ Value& Core<Dictionary, Key, Value, Method>::operator[](const Key key){
   return (*it).second;
 }
 
+template<typename Dictionary, typename Key, typename Value, typename Method>
+void Core<Dictionary, Key, Value, Method>::forceRehash(double p){
+  if(p <= 0){
+      return;
+    }
+  if(this->to_table)
+    this->_rehash(this->from_n * p > 1 ? 1 : p);
+}
+
+template<typename Dictionary, typename Key, typename Value, typename Method>
+void Core<Dictionary, Key, Value, Method>::setRehashThreshold(double p){
+  if(p <= 0){
+      return;
+    }
+  this->_rehashThreshold = p > 1 ? 1 : p;
+}
+
+template<typename Dictionary, typename Key, typename Value, typename Method>
+void Core<Dictionary, Key, Value, Method>::setLoadFactorBoundaries(double lowerLF, double upperLF){
+  if(this->to_table){
+      throw std::logic_error("You're not supposed to change the load-factors while rehashing.");
+    }
+  if(lowerLF <= 0 || upperLF <= 0 || lowerLF >= upperLF){
+      return;
+    }
+  this->lowerLF = lowerLF;
+  this->upperLF = upperLF > 1 ? 1 : upperLF;
+}
+
 /*
  * Private Methods
  */
+
+template<typename Dictionary, typename Key, typename Value, typename Method>
+void Core<Dictionary, Key, Value, Method>::_shrinkTable(){
+  if(this->from_m <= this->min_m){
+      return;
+    }
+  this->to_m = this->from_m / 2;
+  this->to_n = 0;
+  this->_alloca(this->to_m);
+}
+
 
 #endif // CORE_HPP
