@@ -10,6 +10,8 @@ public:
   long int operator()(const long int m, const long int k) const{
     return this->hash(m,k);
   }
+  virtual HashingMethod* clone() = 0;
+
   virtual ~HashingMethod(){}
 };
 
@@ -18,12 +20,18 @@ public:
   inline long int hash(long int m, long int k) const{
     return std::abs(k % m);
   }
+  HashingMethod* clone(){
+    return new DivisionMethod();
+  }
 };
 
 class KnuthDivisionMethod: public HashingMethod{
 public:
   inline long int hash(long int m, long int k) const{
     return std::abs((k*(k+3))%m);
+  }
+  HashingMethod* clone(){
+    return new KnuthDivisionMethod();
   }
 };
 
@@ -42,6 +50,9 @@ public:
     long int A = a * (pow(2, w) - pow(2,w-1)) + pow(2,w-1);
     return (A*k) % int(pow(2, w)) >> std::abs(w-r);
   }
+  HashingMethod* clone(){
+    return new MultiplicationMethod();
+  }
 };
 
 class UniversalMethod: public HashingMethod{
@@ -53,6 +64,9 @@ public:
   }
   inline long int hash(long int m, long int k) const{
     return std::abs(((a*k+b)%p)%m);
+  }
+  HashingMethod* clone(){
+    return new UniversalMethod();
   }
 };
 
