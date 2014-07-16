@@ -33,8 +33,6 @@ public:
 
   ProbingHashTable(ProbingHashTable&);
 
-//  ProbingHashTable(ProbingHashTable&);
-
   ProbingHashTable(ProbingHashTable&&);
 
   template<typename OtherMethod = Method>
@@ -47,8 +45,6 @@ public:
   ProbingHashTable& operator=(ProbingHashTable&& other );
 
   bool insert(const Key, const Value&, Value * = nullptr);
-
-//  bool del(const Key, Value* = nullptr);
 
   iterator search(const Key);
 
@@ -74,19 +70,9 @@ public:
     return h;
   }
 
-//  Value& operator[](const Key);
-
   iterator begin();
 
   iterator end();
-
-//  iterator_key begin_key();
-
-//  iterator_key end_key();
-
-//  iterator_value begin_value();
-
-//  iterator_value end_value();
 
   ~ProbingHashTable();
 
@@ -254,18 +240,6 @@ bool ProbingHashTable<Key, Value, Method>::insert(const Key key, const Value &va
                     _insert(from_table, &from_m, &from_n, key, value, output);
 }
 
-//template<typename Key, typename Value, typename Method>
-//bool ProbingHashTable<Key, Value, Method>::del(const Key key, Value *output){
-//  if(loadFactor() < lowerLF && !to_table){
-//      _shrinkTable();
-//    }
-//  if(to_table){
-//      _rehash(rehashThreshold());
-//    }
-//  return _del(from_table, &from_m, &from_n, key, output) ||
-//      (to_table && _del(to_table, &to_m, &to_n, key, output));
-//}
-
 template<typename Key, typename Value, typename Method>
 typename ProbingHashTable<Key, Value, Method>::iterator
 ProbingHashTable<Key, Value, Method>::search(const Key key){
@@ -308,46 +282,6 @@ ProbingHashTable<Key, Value, Method>::end(){
   return it;
 }
 
-//template<typename Key, typename Value, typename Method>
-//typename ProbingHashTable<Key, Value, Method>::iterator_key
-//ProbingHashTable<Key, Value, Method>::begin_key(){
-//  if(!countValues()){
-//      return this->end_key();
-//    }
-//  if(to_table){
-//      _rehash(from_n);
-//    }
-//  iterator_key it(this);
-//  return it;
-//}
-
-//template<typename Key, typename Value, typename Method>
-//typename ProbingHashTable<Key, Value, Method>::iterator_key
-//ProbingHashTable<Key, Value, Method>::end_key(){
-//  iterator_key it(this, -1);
-//  return it;
-//}
-
-//template<typename Key, typename Value, typename Method>
-//typename ProbingHashTable<Key, Value, Method>::iterator_value
-//ProbingHashTable<Key, Value, Method>::begin_value(){
-//  if(!countValues()){
-//      return this->end_value();
-//    }
-//  if(to_table){
-//      _rehash(from_n);
-//    }
-//  iterator_value it(this);
-//  return it;
-//}
-
-//template<typename Key, typename Value, typename Method>
-//typename ProbingHashTable<Key, Value, Method>::iterator_value
-//ProbingHashTable<Key, Value, Method>::end_value(){
-//  iterator_value it(this, -1);
-//  return it;
-//}
-
 template<typename Key, typename Value, typename Method>
 ProbingHashTable<Key, Value, Method>::~ProbingHashTable(){
   updateVersion();
@@ -356,15 +290,6 @@ ProbingHashTable<Key, Value, Method>::~ProbingHashTable(){
   _dealloc(from_table, &from_m);
   _dealloc(to_table, &to_m);
 }
-
-//template<typename Key, typename Value, typename Method>
-//Value& ProbingHashTable<Key, Value, Method>::operator[](const Key key){
-//  iterator it = this->search(key);
-//  if(it == this->end()){
-//      throw std::out_of_range("No such key.");
-//    }
-//  return (*it).second;
-//}
 
 /*
  * Private Methods
