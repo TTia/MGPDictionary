@@ -29,7 +29,7 @@ public:
 
   ChainingHashTable(Hash, double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M);
 
-  ChainingHashTable(ChainingHashTable<Key, Value, Method>&/*,
+  ChainingHashTable(ChainingHashTable&/*,
                     double loadFactorThreshold = DEFAULT_LF, long int m = DEFAULT_M*/);
 
   template<typename OtherMethod = Method>
@@ -43,9 +43,6 @@ public:
   template<typename OtherMethod = Method>
   ChainingHashTable<Key, Value, Method>&
   operator=(ChainingHashTable<Key, Value, OtherMethod>& other);
-
-  ChainingHashTable&
-  operator=(const ChainingHashTable& other) = delete;
 
   ChainingHashTable& operator=(ChainingHashTable&& other );
 
@@ -150,12 +147,9 @@ template<typename OtherMethod>
 ChainingHashTable<Key, Value, Method>::
 ChainingHashTable(ChainingHashTable<Key, Value, OtherMethod>& cht,
                   double loadFactorThreshold, long int m)
-//  : ChainingHashTable(cht){
-//  : ChainingHashTable(cht.h, loadFactorThreshold, m){
   : ChainingHashTable(cht.getHash(), loadFactorThreshold, m){
   for(auto p: cht){
       this->insert(p.first, p.second);
-//      this->_insert(from_table, &from_m, &from_m, p.first, p.second, nullptr);
     }
 }
 
@@ -167,7 +161,6 @@ ChainingHashTable(ChainingHashTable<Key, Value, Method>& cht)
     return;
   for(auto p: cht){
       this->insert(p.first, p.second);
-//      this->_insert(from_table, &from_m, &from_m, p.first, p.second, nullptr);
     }
 }
 

@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
-#include "open_addressing/ProbingHashTable.hpp"
+#include "open_addressing/OpenAddressing.hpp"
 
-class GTest_ProbingHashTable_Rehashing : public ::testing::Test {};
+class GTest_OpenAddressingDictionary_Rehashing : public ::testing::Test {};
 
-TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_1_Time) {
+TEST_F(GTest_OpenAddressingDictionary_Rehashing, Enlarging_1_Time) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h, .5, 16);
+  OpenAddressingDictionary<int, char> pht(h, .5, 16);
   ASSERT_EQ(0, pht.loadFactor());
   for(int i = 0; i<7; i++){
       pht.insert(i, 'a');
@@ -20,9 +20,9 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_1_Time) {
   ASSERT_EQ(14.0/32, pht.loadFactor());
 }
 
-TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times) {
+TEST_F(GTest_OpenAddressingDictionary_Rehashing, Enlarging_3_Times) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h, .5, 16);
+  OpenAddressingDictionary<int, char> pht(h, .5, 16);
   ASSERT_EQ(0, pht.loadFactor());
   for(int i = 0; i<65; i++){
       pht.insert(i, 'a');
@@ -32,9 +32,9 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times) {
   ASSERT_EQ(65.0/128, pht.loadFactor());
 }
 
-TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
+TEST_F(GTest_OpenAddressingDictionary_Rehashing, Enlarging_3_Times_And_clear) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h, .5, 16);
+  OpenAddressingDictionary<int, char> pht(h, .5, 16);
   ASSERT_EQ(0, pht.loadFactor());
   for(int i = 0; i<65; i++){
       pht.insert(i, 'a');
@@ -50,9 +50,9 @@ TEST_F(GTest_ProbingHashTable_Rehashing, Enlarging_3_Times_And_clear) {
   ASSERT_EQ(1.0/16, pht.loadFactor());
 }
 
-TEST_F(GTest_ProbingHashTable_Rehashing, Search_causes_complete_rehashing) {
+TEST_F(GTest_OpenAddressingDictionary_Rehashing, Search_causes_complete_rehashing) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h, .5, 16);
+  OpenAddressingDictionary<int, char> pht(h, .5, 16);
   for(int i = 0; i<10; i++){
       pht.insert(i, 'a');
     }

@@ -41,9 +41,9 @@ public:
 //          0 : double(countValues())/ (this->to_table? this->to_m: this->from_m);
 //  }
 
-  inline int rehashThreshold(){
-    return (this->to_table? this->to_m: this->from_m) * 0.10;
-  }
+//  inline int rehashThreshold(){
+//    return (this->to_table? this->to_m: this->from_m) * 0.10;
+//  }
 
 private:
 
@@ -76,7 +76,7 @@ bool Core<Dictionary, Key, Value, Method>::del(const Key key, Value* output){
       this->_shrinkTable();
     }
   if(this->to_table){
-      this->_rehash(rehashThreshold());
+      this->_rehash(this->rehashThreshold());
     }
   return this->_del(this->from_table, &this->from_m, &this->from_n, key, output) ||
           (this->to_table && this->_del(this->to_table, &this->to_m, &this->to_n, key, output));

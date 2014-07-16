@@ -1,23 +1,23 @@
 #include "gtest/gtest.h"
-#include "open_addressing/ProbingHashTable.hpp"
+#include "open_addressing/OpenAddressing.hpp"
 
 #include <stdexcept>
 
-class GTest_ProbingHashTable : public ::testing::Test {};
+class GTest_OpenAddressingDictionary : public ::testing::Test {};
 
-TEST_F(GTest_ProbingHashTable, Constructor) {
+TEST_F(GTest_OpenAddressingDictionary, Constructor) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   EXPECT_EQ(pht.countValues(), 0);
   EXPECT_EQ(pht.loadFactor(), 0);
 }
 
-TEST_F(GTest_ProbingHashTable, Copy_Constructor) {
+TEST_F(GTest_OpenAddressingDictionary, Copy_Constructor) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht{h};
+  OpenAddressingDictionary<int, char> pht{h};
   pht.insert(1, 'a');
 
-  ProbingHashTable<int, char> pht2(pht);
+  OpenAddressingDictionary<int, char> pht2(pht);
   pht2.insert(2, 'b');
   ASSERT_EQ(1, pht.countValues());
   ASSERT_EQ(2, pht2.countValues());
@@ -30,20 +30,20 @@ TEST_F(GTest_ProbingHashTable, Copy_Constructor) {
   pht2.del(3);
 }
 
-TEST_F(GTest_ProbingHashTable, Move_Constructor) {
+TEST_F(GTest_OpenAddressingDictionary, Move_Constructor) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht{h};
+  OpenAddressingDictionary<int, char> pht{h};
   pht.insert(1, 'a');
 
-  ProbingHashTable<int, char> pht2{std::move(pht)};
+  OpenAddressingDictionary<int, char> pht2{std::move(pht)};
   pht2.insert(2, 'b');
   ASSERT_EQ(2, pht2.countValues());
 }
 
-TEST_F(GTest_ProbingHashTable, Copy_Operator) {
+TEST_F(GTest_OpenAddressingDictionary, Copy_Operator) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht{h};
-  ProbingHashTable<int, char, QuadraticProbing> pht2{h};
+  OpenAddressingDictionary<int, char> pht{h};
+  OpenAddressingDictionary<int, char, QuadraticProbing> pht2{h};
   pht.insert(1, 'a');
 
   pht2 = pht;
@@ -52,10 +52,10 @@ TEST_F(GTest_ProbingHashTable, Copy_Operator) {
   ASSERT_EQ(2, pht2.countValues());
 }
 
-TEST_F(GTest_ProbingHashTable, Copy_Move_Operator) {
+TEST_F(GTest_OpenAddressingDictionary, Copy_Move_Operator) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht{h};
-  ProbingHashTable<int, char> pht2{h};
+  OpenAddressingDictionary<int, char> pht{h};
+  OpenAddressingDictionary<int, char> pht2{h};
   pht.insert(1, 'a');
 
   pht2 = std::move(pht);
@@ -63,33 +63,33 @@ TEST_F(GTest_ProbingHashTable, Copy_Move_Operator) {
   ASSERT_EQ(2, pht2.countValues());
 }
 
-TEST_F(GTest_ProbingHashTable, Constructor_illegal_parameters) {
+TEST_F(GTest_OpenAddressingDictionary, Constructor_illegal_parameters) {
   std::hash<int> h;
   try{
-    ProbingHashTable<int, char> pht(h, 1.2, -1);
+    OpenAddressingDictionary<int, char> pht(h, 1.2, -1);
     ASSERT_TRUE(false);
   }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
 }
 
-TEST_F(GTest_ProbingHashTable, Constructor_copy) {
+TEST_F(GTest_OpenAddressingDictionary, Constructor_copy) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
 }
 
-TEST_F(GTest_ProbingHashTable, Insert_single) {
+TEST_F(GTest_OpenAddressingDictionary, Insert_single) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a';
 
   ASSERT_FALSE(pht.insert(1,a));
   ASSERT_EQ(pht.countValues(), 1);
 }
 
-TEST_F(GTest_ProbingHashTable, Insert_with_duplication) {
+TEST_F(GTest_OpenAddressingDictionary, Insert_with_duplication) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a', b = 'b', c = 'c';
   char output;
 
@@ -104,9 +104,9 @@ TEST_F(GTest_ProbingHashTable, Insert_with_duplication) {
   ASSERT_EQ(pht.countValues(), 2);
 }
 
-TEST_F(GTest_ProbingHashTable, Search) {
+TEST_F(GTest_OpenAddressingDictionary, Search) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a';
   std::pair<int, char> p{1, a};
 
@@ -115,10 +115,10 @@ TEST_F(GTest_ProbingHashTable, Search) {
 }
 
 
-TEST_F(GTest_ProbingHashTable, Collisions) {
+TEST_F(GTest_OpenAddressingDictionary, Collisions) {
   std::hash<int> h;
   int m = 13;
-  ProbingHashTable<int, char> pht(h, .5, m);
+  OpenAddressingDictionary<int, char> pht(h, .5, m);
   char a = 'a', b = 'b', c = 'c';
   std::pair<int, char> p1{0, a}, p2{m,b}, p3{2*m, c};
   pht.insert(p1.first, p1.second);
@@ -129,16 +129,16 @@ TEST_F(GTest_ProbingHashTable, Collisions) {
   ASSERT_EQ(*pht.search(p3.first), p3);
 }
 
-TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_on_empty_table) {
+TEST_F(GTest_OpenAddressingDictionary, Search_element_doesnt_exist_on_empty_table) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   ASSERT_EQ(pht.search(1), pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
+TEST_F(GTest_OpenAddressingDictionary, Search_element_doesnt_exist) {
   std::hash<int> h;
   int m = 10;
-  ProbingHashTable<int, char> pht(h, .5, m);
+  OpenAddressingDictionary<int, char> pht(h, .5, m);
   char a = 'a';
   std::pair<int, char> p1{2*m+1, a};
   pht.insert(p1.first, p1.second);
@@ -146,10 +146,10 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist) {
   ASSERT_EQ(pht.search(2*m), pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
+TEST_F(GTest_OpenAddressingDictionary, Search_element_doesnt_exist_Extended) {
   std::hash<int> h;
   int m = 1024;
-  ProbingHashTable<int, char> pht(h, .5, m);
+  OpenAddressingDictionary<int, char> pht(h, .5, m);
   char a = 'a';
   for(int i = 0; i<100; i++){
       std::pair<int, char> p1{i, a};
@@ -160,9 +160,9 @@ TEST_F(GTest_ProbingHashTable, Search_element_doesnt_exist_Extended) {
   ASSERT_EQ(pht.search(100), pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Operator_Square_Bracket) {
+TEST_F(GTest_OpenAddressingDictionary, Operator_Square_Bracket) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht{h};
+  OpenAddressingDictionary<int, char> pht{h};
   char a = 'a';
   pht.insert(1, a);
 
@@ -175,9 +175,9 @@ TEST_F(GTest_ProbingHashTable, Operator_Square_Bracket) {
   }
 }
 
-TEST_F(GTest_ProbingHashTable, Delete_single) {
+TEST_F(GTest_OpenAddressingDictionary, Delete_single) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a', output;
   pht.insert(0, a);
   ASSERT_EQ(pht.countValues(), 1);
@@ -186,10 +186,10 @@ TEST_F(GTest_ProbingHashTable, Delete_single) {
   ASSERT_EQ(pht.countValues(), 0);
 }
 
-TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
+TEST_F(GTest_OpenAddressingDictionary, Delete_with_collisions) {
   std::hash<int> h;
   int m = 13;
-  ProbingHashTable<int, char> pht(h, .5, m);
+  OpenAddressingDictionary<int, char> pht(h, .5, m);
   char a = 'a', b = 'b', c = 'c';
   std::pair<int, char> p1{1, a}, p2{m+1,b}, p3{2*m+1, c};
   pht.insert(p1.first, p1.second);
@@ -209,18 +209,18 @@ TEST_F(GTest_ProbingHashTable, Delete_with_collisions) {
   ASSERT_EQ(pht.countValues(), 1);
 }
 
-TEST_F(GTest_ProbingHashTable, Delete_non_existing_element) {
+TEST_F(GTest_OpenAddressingDictionary, Delete_non_existing_element) {
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char output;
   ASSERT_EQ(pht.countValues(), 0);
   ASSERT_FALSE(pht.del(17, &output));
   ASSERT_EQ(pht.countValues(), 0);
 }
 
-TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Insert){
+TEST_F(GTest_OpenAddressingDictionary, Invalidate_iterator_Insert){
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a';
   pht.insert(1, a);
   auto it = pht.begin();
@@ -230,9 +230,9 @@ TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Insert){
   ASSERT_EQ(it, pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Remove){
+TEST_F(GTest_OpenAddressingDictionary, Invalidate_iterator_Remove){
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a';
   pht.insert(1, a);
   pht.insert(2, a);
@@ -243,9 +243,9 @@ TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Remove){
   ASSERT_EQ(it, pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Fail_to_remove){
+TEST_F(GTest_OpenAddressingDictionary, Invalidate_iterator_Fail_to_remove){
   std::hash<int> h;
-  ProbingHashTable<int, char> pht(h);
+  OpenAddressingDictionary<int, char> pht(h);
   char a = 'a';
   pht.insert(1, a);
   pht.insert(2, a);
@@ -256,10 +256,10 @@ TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Fail_to_remove){
   ASSERT_NE(it, pht.end());
 }
 
-TEST_F(GTest_ProbingHashTable, Invalidate_iterator_Delete){
+TEST_F(GTest_OpenAddressingDictionary, Invalidate_iterator_Delete){
   std::hash<int> h;
   int m = 17;
-  ProbingHashTable<int, char> pht(h, .5, m);
+  OpenAddressingDictionary<int, char> pht(h, .5, m);
   char a = 'a';
   pht.insert(1, a);
 
