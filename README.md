@@ -14,6 +14,8 @@ L'operazione di rimozione, nuovamente, restituisce *true* se l'area di memoria p
 
 L'ultima primitiva fondamentale per il dizionario è la ricerca, qui descritta dal protipo: iterator search(const Key);. Data una chiave, è restituito un iteratore: nel caso in cui un elemento sia associato con la chiave fornita sia presente nel dizionario, l'iteratore farà riferimento alla coppia *<Key, Value>*; altrimenti il puntatore coinciderà con il terminatore *end()*.
 #### Comparazione con le interfacce in {Java, C#, C++, Python}
+
+
 ### Close Addressing
 #### Metodi di Hashing
 ### Open Addressing
