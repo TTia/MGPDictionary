@@ -112,7 +112,7 @@ ChainingHashTable<Key, Value, Method>::ChainingHashTable(Hash h, double loadFact
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
   _rehashThreshold{DefaultValues::REHASH_THRESHOLD_DEFAULT},
-  h{h}, to_table{nullptr} {
+  h(h), to_table{nullptr} {
   DefaultConstraints<Key>::checkEqualityComparable();
   _checkContructorParameters(m, loadFactorThreshold);
 
