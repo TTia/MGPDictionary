@@ -5,12 +5,12 @@ L'obiettivo del progetto è l'approfondimento delle meccaniche del C++, con part
 #### L'interfaccia
 Nonostante all'interno della libreria sviluppata sia assente un'interfaccia comune per le implementazioni dei dizionari, le tre operazioni standard, *insert*, *search* e *delete*, condividono gli stessi prototipi.
 
-L'operazione di insert, descritta qui dal prototipo: *bool insert(const Key, const Value&, Value* = nullptr);*, permette l'inserimento di nuovi elementi all'interno del dizionario. Il metodo fornisce anche le funzionalità di *update*: combinando il valore di ritorno booleano ed il terzo parametro opzionale, è possibile ottenere il valore precedente l'aggiornamento del dizionario. Ovviamente, l'area di memoria puntata dal terzo parametro deve essere allocata e scrivibile.
+L'operazione di insert, descritta qui dal prototipo: ```bool insert(const Key, const Value&, Value* = nullptr);```, permette l'inserimento di nuovi elementi all'interno del dizionario. Il metodo fornisce anche le funzionalità di *update*: combinando il valore di ritorno booleano ed il terzo parametro opzionale, è possibile ottenere il valore precedente l'aggiornamento del dizionario. Ovviamente, l'area di memoria puntata dal terzo parametro deve essere allocata e scrivibile.
 Utilizzando il terzo parametro, il metodo restituisce *true* se all'indirizzo è presente il valore sovrascritto; *false* altrimenti.
 
-L'operazione di rimozione di un elemento è descritta dal prototipo *bool del(const Key, Value* = nullptr);*. Per rimuovere un elemento presente all'interno del dizionario, è necessario indicare la chiave ad esso associata. Come per l'operazione di *insert*, è disponibile una funzionalità opzionale: in particolare l'utente può ottenere il valore associato alla chiave prima della rimozione. Utilizzando il secondo parametro, il metodo restituisce *true* se all'indirizzo è presente il valore rimosso; *false* altrimenti.
+L'operazione di rimozione di un elemento è descritta dal prototipo ```bool del(const Key, Value* = nullptr);```. Per rimuovere un elemento presente all'interno del dizionario, è necessario indicare la chiave ad esso associata. Come per l'operazione di *insert*, è disponibile una funzionalità opzionale: in particolare l'utente può ottenere il valore associato alla chiave prima della rimozione. Utilizzando il secondo parametro, il metodo restituisce *true* se all'indirizzo è presente il valore rimosso; *false* altrimenti.
 
-L'ultima primitiva è la ricerca, descritta dal protipo *iterator search(const Key);*. Data una chiave, è restituito un iteratore: nel caso in cui un elemento sia associato con la chiave fornita sia presente nel dizionario, l'iteratore farà riferimento alla corretta coppia *(Chiave, Valore)*; altrimenti il puntatore coinciderà con il terminatore *end()*.
+L'ultima primitiva è la ricerca, descritta dal protipo ```iterator search(const Key);```. Data una chiave, è restituito un iteratore: nel caso in cui un elemento sia associato con la chiave fornita sia presente nel dizionario, l'iteratore farà riferimento alla corretta coppia *(Chiave, Valore)*; altrimenti il puntatore coinciderà con il terminatore *end()*.
 
 #### Comparazione con le interfacce in {Java, C#, C++, Python}
 Per la definizione delle primitive è stato preso spunto dalle implementazioni dalle librerie standard dei più comuni linguaggi di programmazione. Osservando la libreria *map* di C++, ed in particolare dalla versione C++11, è stato scelto di implementare l'operazione di *search* sfruttando gli iteratori come tipo di ritorno. A differenza dell'operazione *map::find*, che espone esclusivamente iteratori sui valori, le implementazioni dei dizionari presenti in questo progetto restituiscono iteratori sulle coppie (Chiave, Valore).
@@ -52,22 +52,26 @@ Le classi che implementano le funzionalità di probing sfruttano i metodi di has
 Per ciascun dizionario sono forniti tre iteratori bidirezionali, sulle coppie, chiavi e valori. Sfruttando la libreria di [Boost 1.55](http://www.boost.org/doc/libs/1_55_0 "Boost 1.55"), ed in particolare la classe generica *[iterator_facade](http://www.boost.org/doc/libs/1_55_0/libs/iterator/doc/facade-and-adaptor.html "iterator_facade")*, selezionado tale classe come classe padre del proprio iteratore è sufficiente implementare 4 operazioni essenziali {incremento, decremento, confronto e dereference} e configurare opportunamente i parametri di tipo della super-classe per derivare le altre funzionalità richieste dallo standard per un *BidirectionalIterator*.
 Definito l'iteratore principale, che itera sulle coppie (Chiave, Valore), non è stato possibile implementare le altre due versioni sfruttando l'ereditarietà a causa dei parametri di tipo utilizzati, infatti uno dei parametri richiesti dalla classe *iterator_facade* è il tipo risultato dell'operazione di dereference; si è rivelato quindi necessario "decorare" la classe base con le funzionalità degli iteratori su chiavi e valori.
 
-Ciascuna classe definisce i tre diversi iteratori, *::iterator*, *::iterator_key* ed *::iterator_value*, e fornisce i relativi metodi *begin{, _value, _end}()* e *end{, _value, _key}()* per iterare sugli elementi presenti. Data la necessità completare un'eventuale processo di rehashing, i metodi appena elencati non possono essere considerati *const*.
+Ciascuna classe definisce i tre diversi iteratori, ```::iterator```, ```::iterator_key``` ed ```::iterator_value```, e fornisce i relativi metodi ```begin{, _value, _end}()``` e ```end{, _value, _key}()``` per iterare sugli elementi presenti. Data la necessità completare un'eventuale processo di rehashing, i metodi appena elencati non possono essere considerati ```const```.
 
 Tutti gli iteratori presenti nella libreria riconoscono le eventuali modifiche strutturali eseguite sulla struttura a cui si riferiscono: tramite un contatore di versione, esponendosi purtroppo alle stesse problematiche degli iteratori in Java 1.7, verificano eventuali cambiamenti sulla struttura dati corrispondente e invalidano ogni tentativo di operazione tramite l'iteratore stesso.
 
 ### Il layout delle classi
-Oltre ai prototipi delle principali funzioni, entrambe le classi condividono i tipi *Table*, *Hash*, *Pair* -seppur corrispondenti a tipi differenti- e i tipi iteratori già discussi. E' stato possibile quindi collocare alcune operazioni in una classe comune. La libreria presenta la seguente struttura:
+Oltre ai prototipi delle principali funzioni, entrambe le classi condividono i tipi ```::Table```, ```::Hash```, ```::Pair``` -seppur corrispondenti a tipi differenti- e i tipi iteratori già discussi. E' stato possibile quindi collocare alcune operazioni in una classe comune. La libreria presenta la seguente struttura:
 
-``` c++
+```
 template<typename Key, typename Value, typename Method>
 class ChainingHashTable;
+
 template<typename Key, typename Value, typename Method>
 class ProbingHashTable;
+
 template <typename Dictionary, typename Key, typename Value, typename Method>
 class Core: public Dictionary;
+
 template <typename Key, typename Value, typename Method = DivisionMethod>
 class CloseAddressingDictionary: public Core<ChainingHashTable<Key, Value, Method>, Key, Value, Method>;
+
 template <typename Key, typename Value, typename Method = LinearProbing>
 class OpenAddressingDictionary: public Core<ProbingHashTable<Key, Value, Method>, Key, Value, Method>;
 ```
