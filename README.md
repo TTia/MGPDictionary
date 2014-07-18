@@ -90,7 +90,7 @@ public:
 ```
 
 Il metodo ```static void checkEqualityComparable();``` permette la verifica a compile time dell'asserzione -il tipo ```Key``` deve essere confrontabile- ed effettua il constrollo a tempo di compilazione, evitando errori a run-time di difficile decifrazione.
-I dizionari implementati espongono pochi vincoli, per approfondire è possibile consultare la libreria di Boost relativa ai concept.
+I dizionari implementati espongono pochi vincoli, per approfondire è possibile consultare [la libreria di Boost relativa ai concept](http://www.boost.org/doc/libs/1_55_0/libs/concept_check/concept_check.htm "Boost Concept Reference").
 
 ### GTest
 Il progetto è accompagnato da un numero di test importante: la maggior parte delle funzionalità è stata implementata, corretta e verificata parallelamente allo sviluppo di una suite di unit-test. La libreria sfruttata è [GTest 1.7](https://code.google.com/p/googletest/wiki/V1_7_Documentation "GTest 1.7").
