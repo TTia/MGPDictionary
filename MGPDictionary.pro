@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     gtest/open_addressing/GTest_Probing.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Iterator_Key.cpp \
     gtest/open_addressing/GTest_ProbingHashTable_Iterator_Value.cpp \
-    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Pair.cpp
+    gtest/open_addressing/GTest_ProbingHashTable_Iterator_Pair.cpp \
+    gtest/open_addressing/GTest_Concept.cpp
 
 HEADERS += \
     Hashing.hpp \

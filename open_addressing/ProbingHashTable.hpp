@@ -121,9 +121,9 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
   _rehashThreshold{DefaultValues::REHASH_THRESHOLD_DEFAULT},
   h{h}, from_table{nullptr}, to_table{nullptr}{
-  if(m <= 0 || loadFactorThreshold <= 0 || loadFactorThreshold > 1){
-      throw std::logic_error("m should be greater than 0 and the load factor should be in (0,1].");
-    }
+
+  DefaultConstraints<Key>::checkEqualityComparable();
+  _checkContructorParameters(m, loadFactorThreshold);
 
   from_table = new Table[from_m];
   for(long int i = 0; i<from_m; i++){

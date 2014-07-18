@@ -5,7 +5,7 @@ class GTest_OpenAddressingDictionary_Rehashing : public ::testing::Test {};
 
 TEST_F(GTest_OpenAddressingDictionary_Rehashing, Enlarging_1_Time) {
   std::hash<int> h;
-  OpenAddressingDictionary<int, char> pht(h, .5, 16);
+  OpenAddressingDictionary<int, char> pht{h, .5, 16};
   ASSERT_EQ(0, pht.loadFactor());
   for(int i = 0; i<7; i++){
       pht.insert(i, 'a');
