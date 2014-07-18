@@ -77,8 +77,23 @@ class OpenAddressingDictionary: public Core<ProbingHashTable<Key, Value, Method>
 ```
 
 ### I concept di Boost
+La libreria presenta solo alcune limitazioni sui tipi. La prima e più ovvia è che il tipo scelto per rappresentare la chiave permetta il calcolo dell'impronta hash sul proprio valore: per esprimere il vincolo è stato richiesto di fornire al costruttore di base un parametro di tipo ```std::hash<Key>``` -di cui sono presenti le implementazioni per i tipi primitivi all'interno della libreria standard-. L'altro e ultimo requisito è rappresentato dalla necessità di effettuare il confronto fra due valori di tipo chiave, per esprimere questo concetto è stata sfruttata nuovamente la libreria di Boost v1.55:
+
+```
+template<typename Key>
+class DefaultConstraints{
+public:
+  static void checkEqualityComparable(){
+    BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Key>));
+  }
+};
+```
+
+Il metodo ```static void checkEqualityComparable();``` permette la verifica a compile time dell'asserzione -il tipo ```Key``` deve essere confrontabile- ed effettua il constrollo a tempo di compilazione, evitando errori a run-time di difficile decifrazione.
+I dizionari implementati espongono pochi vincoli, per approfondire è possibile consultare la libreria di Boost relativa ai concept.
+
 ### GTest
-Il progetto è accompagnato da un numero di test importante: la maggior parte delle funzionalità è stata implementata, corretta e verificata parallelamente allo sviluppo di una suite di unit-test. La libreria sfruttata è GTest 1.7. Link
+Il progetto è accompagnato da un numero di test importante: la maggior parte delle funzionalità è stata implementata, corretta e verificata parallelamente allo sviluppo di una suite di unit-test. La libreria sfruttata è [GTest 1.7](https://code.google.com/p/googletest/wiki/V1_7_Documentation "GTest 1.7").
 
 ### Valgrind
 Oltre alla correttezza funzionale verificata dai test, sono stati effettuati controlli con [ValGrind](http://valgrind.org/ "ValGrind"). per verificare la presenza di leak ed in generale l'uso non corretto della memoria. L'esecuzione dei quasi 90 casi di test tramite il tool non causa alcun problema di questo tipo.
