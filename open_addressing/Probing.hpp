@@ -72,6 +72,13 @@ public:
   DoubleHashing(): ProbingMethod(), hm2{new DivisionMethod()}{}
   DoubleHashing(HashingMethod h1, HashingMethod h2): ProbingMethod(h1), hm2{&h2}{}
 
+  DoubleHashing(ProbingMethod&& other): ProbingMethod(std::move(other)), hm2{new DivisionMethod()}{}
+
+  DoubleHashing& operator=(ProbingMethod&& other){
+    ProbingMethod::operator =(std::move(other));
+    return *this;
+  }
+
   DoubleHashing(DoubleHashing&& other): ProbingMethod(std::move(other)){
     other.hm2 = std::move(other.hm2);
     other.hm2 = 0;

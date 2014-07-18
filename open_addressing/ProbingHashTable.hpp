@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <memory>
 
-template<typename Key, typename Value, typename Method = LinearProbing>
+template<typename Key, typename Value, typename Method>
 class ProbingHashTable{
   friend class PHTBidirectionalIterator<Key, Value, Method>;
 

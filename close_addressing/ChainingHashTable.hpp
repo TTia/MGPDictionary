@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <memory>
 
-template<typename Key, typename Value, typename Method = DivisionMethod>
+template<typename Key, typename Value, typename Method>
 class ChainingHashTable{
   friend class CHTBidirectionalIterator<Key, Value, Method>;
 

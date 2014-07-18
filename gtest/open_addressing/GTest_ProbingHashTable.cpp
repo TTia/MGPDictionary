@@ -17,7 +17,7 @@ TEST_F(GTest_OpenAddressingDictionary, Copy_Constructor) {
   OpenAddressingDictionary<int, char> pht{h};
   pht.insert(1, 'a');
 
-  OpenAddressingDictionary<int, char> pht2(pht);
+  OpenAddressingDictionary<int, char, DoubleHashing> pht2(pht);
   pht2.insert(2, 'b');
   ASSERT_EQ(1, pht.countValues());
   ASSERT_EQ(2, pht2.countValues());
@@ -71,11 +71,6 @@ TEST_F(GTest_OpenAddressingDictionary, Constructor_illegal_parameters) {
   }catch(std::logic_error){
     ASSERT_TRUE(true);
   }
-}
-
-TEST_F(GTest_OpenAddressingDictionary, Constructor_copy) {
-  std::hash<int> h;
-  OpenAddressingDictionary<int, char> pht(h);
 }
 
 TEST_F(GTest_OpenAddressingDictionary, Insert_single) {
