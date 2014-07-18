@@ -120,7 +120,7 @@ ProbingHashTable<Key, Value, Method>::ProbingHashTable(Hash h, double loadFactor
   from_m{m}, to_m{0}, from_n{0}, to_n{0}, min_m{m},
   upperLF{loadFactorThreshold}, lowerLF{upperLF*0.30},
   _rehashThreshold{DefaultValues::REHASH_THRESHOLD_DEFAULT},
-  h{h}, from_table{nullptr}, to_table{nullptr}{
+  h(h), from_table{nullptr}, to_table{nullptr}{
 
   DefaultConstraints<Key>::checkEqualityComparable();
   _checkContructorParameters(m, loadFactorThreshold);
